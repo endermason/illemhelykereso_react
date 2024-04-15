@@ -24,7 +24,7 @@ export function Hely() {
     }, []);
 
     return (
-        <div style={{ position: "fixed", zIndex: 1 }}>
+        <div>
             {places.map(place => (
                 <div key={place.id}>
                     <h2>{place.name}</h2>
