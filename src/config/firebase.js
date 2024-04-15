@@ -1,26 +1,29 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
+
+//TODO - valamiért nem működik a process.env változók használata, ezért a configot itt hagytam
 const firebaseConfig = {
-
-  apiKey: "AIzaSyDzj4EDpkhGfLfbR3WwAOcUzsBxeXlf7PA", //process.env.REACT_APP_FIREBASE_KEY, //
-
-  authDomain: "illemhelykereso.firebaseapp.com", //process.env.REACT_APP_FIEBASE_AUTH_DOMAIN
-
-  projectId: "illemhelykereso", //process.env.REACT_APP_FIEBASE_PROJECT_ID,
-
-  storageBucket: "illemhelykereso.appspot.com", //process.env.REACT_APP_FIEBASE_STORAGE_BUCKET,
-
-  messagingSenderId: "440844589566", //process.env.REACT_APP_FIEBASE_MESSAGING_SENDER_ID,
-
-  appId: "1:440844589566:web:f92923c5db585f48c648af", //process.env.REACT_APP_FIEBASE_APP_ID,
-
-  measurementId: "G-JNBMYTVZSG" //process.env.REACT_APP_FIEBASE_MEASUREMENT_ID
-
+  apiKey: //process.env.REACT_APP_FIREBASE_API_KEY,
+  "AIzaSyA79uAvOjEUp4wo0FTWnkD0O7TyJfNqA1U",
+  authDomain: //process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  "illemhely-b73d8.firebaseapp.com",
+  projectId: //process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  "illemhely-b73d8",
+  storageBucket: //process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  "illemhely-b73d8.appspot.com",
+  messagingSenderId: //process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  "475601885110",
+  appId: //process.env.REACT_APP_FIREBASE_APP_ID,
+  "1:475601885110:web:9206e45a45be8692f5d317",
+  measurementId: //process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
+  "G-J2V7JK9LWQ"
 };
 
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+const analytics = getAnalytics(app);
+export const db = getFirestore(app);
