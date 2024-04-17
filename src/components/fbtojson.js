@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { db } from "../config/firebase";
 import { getDocs, collection } from "firebase/firestore";
 
+export let jeson = {};
 export function Hely() {
     const [places, setPlaces] = useState([]);
 
@@ -17,21 +18,13 @@ export function Hely() {
                 acc[place.id] = place;
                 return acc;
             }, {});
-            console.log(constants);    
-        };
+            
+            jeson=(JSON.stringify(constants));
+
+        };     
         
         fetchPlaces();
+        
     }, []);
-
-    return (
-        <div>
-            {places.map(place => (
-                <div key={place.id}>
-                    <h2>{place.name}</h2>
-                    <p>{place.description}</p>
-                    {/* Render other place properties as needed */}
-                </div>
-            ))}
-        </div>
-    );
 }
+

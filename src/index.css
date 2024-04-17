@@ -12,3 +12,7 @@ code {
     monospace;
 }
 
+.grid-container {
+  width:30%;  
+  display:inline-block
+}

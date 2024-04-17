@@ -68,6 +68,9 @@ export const Auth = () => {
             <button className="signin-btn" onClick={signIn}>Bejelentkezés</button>
             <button className="signin-with-google-btn" onClick={signInWithGoogle}>Jelentkezz be Google fiókkal</button>
             <button className="signout-btn" onClick={logOut}>Kijelentkezés</button>
+            <br/>
+            <p></p>
         </div>
+        
     );
 };
