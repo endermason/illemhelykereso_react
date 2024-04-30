@@ -2,29 +2,42 @@ import { useEffect, useState } from "react";
 import { db } from "../config/firebase";
 import { getDocs, collection } from "firebase/firestore";
 
-export let jeson = {};
-export function Hely() {
-    const [places, setPlaces] = useState([]);
+export async function downloadPlaces() {
+    /*
+    try {
+            const data = await getDocs(placeCollectionRef); // Az adatok lekérése a Firestore-ból
+            const filteredData = data.docs.map((doc) => ({ ...doc.data(), id: doc.id })); // Az adatok feldolgozása, hozzáadva az id-t
+            // console.log(filteredData);
+            setPlaceList(filteredData); // Az adatok beállítása a state-be
+        } catch (err) {
+            console.error(err);
+        }
+        */
 
-    useEffect(() => {
-        const fetchPlaces = async () => {
-            const placesCollection = collection(db, "places");
-            const placesSnapshot = await getDocs(placesCollection);
-            const placesList = placesSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-            setPlaces(placesList);
+    try {
+        const placesCollection = collection(db, "places");
+        const placesSnapshot = await getDocs(placesCollection);
+        const placesList = placesSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
 
-            // Store data in constants
-            const constants = placesList.reduce((acc, place) => {
-                acc[place.id] = place;
-                return acc;
-            }, {});
-            
-            jeson=(JSON.stringify(constants));
+        // Store data in constants
+        const constants = placesList.reduce((acc, place) => {
+            let p = place;
+            p.coordinates = [place.longitude, place.latitude];
 
-        };     
+            if (place.rating === undefined) {
+                p.rating_calculated = -1;  // Ha nincs értékelés, akkor -1 a rating
+            } else {
+                const ratings = Object.keys(place.rating);
+                p.rating_calculated = ratings.reduce((acc, rating) => acc + place.rating[rating], 0) / ratings.length
+            }
+            acc.push(p);
+            return acc;
+        }, []);
         
-        fetchPlaces();
-        
-    }, []);
+        return constants;
+    } catch (err) {
+        console.error(err);
+        return [];
+    }
 }
 

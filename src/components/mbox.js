@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import mapboxgl from 'mapbox-gl';
 // import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions';
@@ -7,150 +7,138 @@ import '../Map.css';
 import { db, adminUser } from "../config/firebase";
 import { getDocs, collection } from "firebase/firestore";
 // import ReactMapGl, { FullscreenControl, GeolocateControl, Source, Layer } from 'react-map-gl';
-import { getAuth } from 'firebase/auth';
+import { auth } from '../config/firebase';
+import Map, {NavigationControl, Marker, GeolocateControl, Layer, Source} from 'react-map-gl';
+import { downloadPlaces } from './fbtojson';
+import AuthContext from '../contexts/logoutcontext';
+import { useContext } from 'react';
 
-mapboxgl.accessToken = 'pk.eyJ1IjoiZW5kZXJtYXNvbiIsImEiOiJjbDh1c3E2Y20wN2FuM3BvZzhxYW4zNndpIn0.MWkq3OWmG-285QQQ318pfg';
+mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-const auth = getAuth();
-const currentUser = auth.currentUser;
-
-const Marker = ({ onClick, children, feature }) => {
-    const _onClick = () => {
-        onClick(feature);
-    };
-
-    return (
-        <button onClick={_onClick} className="marker">
-            {children}
-        </button>
-    );
-};
-
-const Mbox = ({ onClick, filter }) => {
+const Mbox = ({ onClick, filter, setMe, route }) => {
+    const { currentUser } = useContext(AuthContext);
+    
     const mapContainerRef = useRef(null);
-    const [json, setJson] = useState([]);
+    const [original, setOriginal] = useState([]);
     const [filtered, setFiltered] = useState([]);
+
 
     useEffect(() => {
         const fetchPlaces = async () => {
-            const placesCollection = collection(db, "places");
-            const placesSnapshot = await getDocs(placesCollection);
-            let placesList = placesSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+            let placesList = await downloadPlaces();
 
-            if (currentUser == null || currentUser.uid !== adminUser) { // KÉRDÉSES, HOGY EZ MŰKÖDIK-E NORMÁLISAN
+            if (currentUser == null || currentUser.uid !== adminUser) {
                 placesList = placesList.filter(place => place.accepted);
             }
 
-            // Store data in constants
-            const constants = placesList.reduce((acc, place) => {
-                acc[place.id] = place;
-                acc[place.id].coordinates = [place.longitude, place.latitude];
-
-                if (!place.ratings) place.ratings = {};
-                const ratings = Object.keys(place.ratings);
-                acc[place.id].rating = ratings.reduce((acc, rating) => acc + place.ratings[rating], 0) / ratings.length;
-                return acc;
-            }, {});
-
-            setJson(constants);
-            setFiltered(constants);
-
+            setOriginal(placesList);
         };
 
         fetchPlaces();
 
     }, []);
 
-    // Initialize map when component mounts
     useEffect(() => {
-        if (!filtered) return;
-
-        const map = new mapboxgl.Map({
-            container: mapContainerRef.current,
-            style: 'mapbox://styles/mapbox/streets-v11',
-            center: [17.63517, 47.68329],
-            zoom: 10,
-        });
-
-        // map.on('load', function () {
-        //     map.addImage(
-        //         "../marker.svg",
-        //         function(error, image) {
-        //             if (error) throw error;
-        //             map.addImage("custom-marker", image);
-        //             map.addSource("places", {
-        //                 type: "geojson",
-        //                 data: {
-        //                     type: "FeatureCollection",
-        //                     features: Object.keys(filtered).map((key) => {
-        //                         return {
-        //                             type: "Feature",
-        //                             geometry: {
-        //                                 type: "Point",
-        //                                 coordinates: filtered[key].coordinates,
-        //                             },
-        //                             properties: {
-        //                                 title: filtered[key].name,
-        //                                 description: filtered[key].description,
-        //                                 id: key,
-        //                             },
-        //                         };
-        //                     }),
-        //                 },
-        //             });
-        //             map.addLayer({
-        //                 id: "places",
-        //                 type: "symbol",
-        //                 source: "places",
-        //                 layout: {
-        //                     "icon-image": "custom-marker",
-        //                     "icon-allow-overlap": true,
-        //                 },
-        //             });
-        //         }
-        //     )
-        // });
-
-        // Render custom marker components
-        Object.keys(filtered).forEach((key) => {
-            // Create a React ref
-            const ref = React.createRef();
-            // Create a new DOM node and save it to the React ref
-            ref.current = document.createElement('div');
-
-            const feature = filtered[key];
-
-            // Render a Marker Component on our new DOM node
-            createRoot(ref.current).render(
-                <Marker onClick={onClick} feature={feature} />
-            );
-
-            // Create a Mapbox Marker at our new DOM node
-            new mapboxgl.Marker(ref.current)
-                .setLngLat(feature.coordinates)
-                .addTo(map);
-        });
-
-        // Add navigation control (the +/- zoom buttons)
-        map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
-
-
-        // Clean up on unmount
-        return () => map.remove();
-    }, [filtered]);
-
-    useEffect(() => {
-        const filtered2 = Object.keys(json).reduce((acc, key) => {
-            if (filter(json[key])) {
-                acc[key] = json[key];
+        const newFiltered = original.reduce((acc, feature) => {
+            if (filter(feature)) {
+                acc.push(feature);
             }
             return acc;
-        }, {});
-        setFiltered(filtered2);
-    }, [json, filter])
+        }, []);
+        setFiltered(newFiltered);
+    }, [original, filter]) //Külsős filter ablak dolgai
 
-    return <div className="map-container" ref={mapContainerRef} style={{ height: "inherit"}} />;
+
+    const mapRef = useRef();
+    const geoControlRef = useRef();
+
+    const [routeJson, setRouteJson] = useState(null);
+
+    const layer = {
+        id: 'route',
+        type: 'line',
+        layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        paint: {
+            'line-color': '#3887be',
+            'line-width': 5,
+            'line-opacity': 0.75
+        }
+    };
+
+
+    useEffect(() => {
+        if (route === null || route === undefined) {
+            setRouteJson(null);
+            return;
+        }
+    
+        const data = route.routes[0].geometry.coordinates
+        const geojson = {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'LineString',
+                coordinates: data
+            }
+        };
+        setRouteJson(geojson);
+    }, [route]);
+    
+    return <Map
+        ref={mapRef}
+        mapboxAccessToken={process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}
+        initialViewState={{
+            longitude: 19.504001543678186,
+            latitude: 47.18010736034033,
+            zoom: 7,
+        }}
+        onLoad={() => {
+            geoControlRef.current?.trigger();
+          }}
+        style={{ height: "100%"}}
+        mapStyle="mapbox://styles/mapbox/streets-v11"
+        className="map-container"
+    >
+        {routeJson && <Source id="route" type="geojson" data={routeJson}>
+            <Layer {...layer} />
+        </Source>
+        }
+        <GeolocateControl
+        position="top-right" 
+        ref={geoControlRef} 
+        positionOptions={{ enableHighAccuracy: true }} 
+        trackUserLocation={true} 
+        showAccuracyCircle={false} 
+        onGeolocate={(position) => {
+            setMe({
+                longitude: position.coords.longitude,
+                latitude: position.coords.latitude,
+            }
+                    
+        );
+        }} />
+        <NavigationControl position="bottom-left"  />
+        {filtered && filtered.map((feature) => {
+            return (
+                <Marker
+                    key={feature.id}
+                    longitude={feature.coordinates[0]} latitude={feature.coordinates[1]} 
+                    anchor="bottom" 
+                    className="marker"
+                    onClick={() => onClick(feature)}
+                    style={{ cursor: "pointer" }}
+                >
+                    {feature.accepted ? <img src="../marker.svg" alt="marker" height={24} width={24} /> : <img src="../marker-red.svg"  alt="marker" height={24} width={24} />} 
+                    {/* Ha el van fogadva a hely, akkor zöld, ha nincs, akkor piros */}
+                    </Marker>
+            );
+        })}
+        </Map>;
+
+    //return <div className="map-container" ref={mapContainerRef} style={{ height: "inherit"}} />;
 
 };
 

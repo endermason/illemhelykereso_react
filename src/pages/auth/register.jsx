@@ -2,6 +2,8 @@ import { auth } from '../../config/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 
 export const Signup = () => {
     const navigate = useNavigate();
@@ -9,10 +11,51 @@ export const Signup = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [passwordConfirm, setPasswordConfirm] = useState("");
 
-    //console.log(auth?.currentUser?.email);
+    const validatePassword = (password) => {
+        // Check the length
+        if (password.length < 8 || password.length > 20) {
+            return "A jelszónak 8-20 karakter hosszúnak kell lennie.";
+        }
+    
+        // Check for lowercase letter
+        if (!/[a-z]/.test(password)) {
+            return "A jelszónak tartalmaznia kell legalább egy kisbetűt.";
+        }
+    
+        // Check for uppercase letter
+        if (!/[A-Z]/.test(password)) {
+            return "A jelszónak tartalmaznia kell legalább egy nagybetűt.";
+        }
+    
+        // Check for number
+        if (!/[0-9]/.test(password)) {
+            return "A jelszónak tartalmaznia kell legalább egy számot";
+        }
+    
+        // Check for special character
+        if (!/[!?.,-€@#$%^&*]/.test(password)) {
+            return "A jelszónak tartalmaznia kell legalább egy speciális karaktert";
+        }
+    
+        // If all conditions are met
+        return null;
+    };
 
-    const signUp = async () => {
+    const signUp = async (e) => {
+        e.preventDefault();
+
+        const passwordError = validatePassword(password);
+        if (passwordError) {
+            setError(passwordError);
+            return;
+        }
+
+        if (password !== passwordConfirm) {
+            setError("A jelszavaknak egyezniük kell.");
+            return;
+        }
         try {
             await createUserWithEmailAndPassword(auth, email, password);
             navigate("/"); // Navigate to home page or dashboard after successful signup
@@ -32,20 +75,38 @@ export const Signup = () => {
     };
 
     return (
-        <div className="signup-page">
-            <h1>Regisztráció</h1>
-            {error && <p className="error">{error}</p>}
-            <input
-                placeholder="E-mail cím"
-                type="email"
-                onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-                placeholder="Jelszó"
-                type="password"
-                onChange={(e) => setPassword(e.target.value)}
-            />
-            <button className="signup-btn" onClick={signUp}>Regisztráció</button>
-        </div>
+        <Form className="signup-page" style={{maxWidth: "50vw", textAlign: "center", margin: "auto", paddingTop: "10vh"}}>
+            <h1 style={{fontSize:"1em", margin:"auto", border: "5px solid red", borderRadius:"1em", width: "10em"}}>Regisztráció</h1>
+            {error && <div className="error"  style={{border: "5px solid red"}}>{error}</div>}
+            <Form.Group controlId="email">
+                <Form.Label>E-mail cím</Form.Label>
+                <Form.Control
+                    type="email"
+                    placeholder="E-mail cím"
+                    onChange={(e) => setEmail(e.target.value)}
+                />
+            </Form.Group>
+            <Form.Group controlId="password">
+                <Form.Label>Jelszó</Form.Label>
+                <Form.Control
+                    type="password"
+                    placeholder="Jelszó"
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+            </Form.Group>
+            <Form.Group controlId="password" >
+                <Form.Label>Jelszó megerősítése</Form.Label>
+                <Form.Control
+                    type="password"
+                    placeholder="Jelszó megerősítése"
+                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                />
+            </Form.Group>
+            <Button className="signup-btn" onClick={signUp}>Regisztráció</Button>
+        </Form>
+
+
+
+        
     );
 };

@@ -1,10 +1,16 @@
 import { auth, googleProvider } from '../../config/firebase';
 import { signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AuthContext from '../../contexts/logoutcontext';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+
 
 export const Auth = () => {
     const navigate = useNavigate();
+
+    const { logOut } = useContext(AuthContext);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -48,29 +54,47 @@ export const Auth = () => {
         }
     };
 
-    const logOut = async () => {
-        try {
-            await signOut(auth);
-            navigate("/");
-        } catch (err) {
-            console.error(err);
-            // Consider providing feedback on logout errors
-            setError("Kijelentkezési hiba. Kérjük, próbálja újra.");
-        }
-    };
+    const resetPassword = () => {
+        navigate("/forgotpassword");
+    }
 
     return (
-        <div className="login-page">
-            <h1>Bejelentkezés</h1>
-            {error && <div className="error-message">{error}</div>} {/* Display error messages */}
-            <input placeholder="E-mail cím" type="email" onChange={(e) => setEmail(e.target.value)} />
-            <input placeholder="Jelszó" type="password" onChange={(e) => setPassword(e.target.value)} />
-            <button className="signin-btn" onClick={signIn}>Bejelentkezés</button>
-            <button className="signin-with-google-btn" onClick={signInWithGoogle}>Jelentkezz be Google fiókkal</button>
-            <button className="signout-btn" onClick={logOut}>Kijelentkezés</button>
-            <br/>
-            <p></p>
-        </div>
+        // <div className="login-page">
+        //     <h1>Bejelentkezés</h1>
+        //     {error && <div className="error-message">{error}</div>} {/* Display error messages */}
+        //     <input placeholder="E-mail cím" type="email" onChange={(e) => setEmail(e.target.value)} />
+        //     <input placeholder="Jelszó" type="password" onChange={(e) => setPassword(e.target.value)} />
+        //     <button className="signin-btn" onClick={signIn}>Bejelentkezés</button>
+        //     <button className="signin-with-google-btn" onClick={signInWithGoogle}>Jelentkezz be Google fiókkal</button>
+        //     <button className="signout-btn" onClick={logOut}>Kijelentkezés</button>
+        //     <br/>
+        //     <p></p>
+        // </div>
+
+        <Form className="login-page" style={{maxWidth: "50vw", textAlign: "center", margin: "auto", paddingTop: "10vh"}}>
+            <h1 style={{fontSize:"1em", margin:"auto", border: "5px solid red", borderRadius:"1em", width: "10em"}}>Bejelentkezés</h1>
+            {error && <div className="error-message"  style={{border: "5px solid red"}}>{error}</div>}
+            <Form.Group controlId="email">
+                <Form.Label>E-mail cím</Form.Label>
+                <Form.Control
+                    type="email"
+                    placeholder="E-mail cím"
+                    onChange={(e) => setEmail(e.target.value)}
+                />
+            </Form.Group>
+            <Form.Group controlId="password">
+                <Form.Label>Jelszó</Form.Label>
+                <Form.Control
+                    type="password"
+                    placeholder="Jelszó"
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+            </Form.Group>
+            <Button className="signin-btn" style={{marginTop:"1vh"}} onClick={signIn}>Bejelentkezés</Button>
+            <p>vagy</p>
+            <Button className="signin-with-google-btn" style={{marginTop:"1vh", marginBottom:"2vh"}} onClick={signInWithGoogle}>Jelentkezz be Google fiókkal</Button>
+            <h2>Elfelejtetted a jelszavad? <b onClick={resetPassword} style={{color: "blue", textDecoration: "underline", cursor: "pointer"}}><i>itt</i></b> visszaállíthatod.</h2>
+        </Form>
         
     );
 };

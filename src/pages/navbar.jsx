@@ -2,34 +2,36 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
+import { useContext } from 'react';
+import AuthContext from '../contexts/logoutcontext';
+import { Link } from "react-router-dom";
+import { adminUser } from '../config/firebase';
 
-function Navbar() {
+
+function Navigationbar() {
+  const { currentUser, logOut } = useContext(AuthContext);
+  
   return (
     <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary">
       <Container>
-        <Navbar.Brand href="#home">React-Bootstrap</Navbar.Brand>
+        <Navbar.Brand as={Link} to="/">Illemhelykereső</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link href="#features">Features</Nav.Link>
-            <Nav.Link href="#pricing">Pricing</Nav.Link>
-            <NavDropdown title="Dropdown" id="collapsible-nav-dropdown">
-              <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.2">
-                Another action
-              </NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item href="#action/3.4">
-                Separated link
-              </NavDropdown.Item>
-            </NavDropdown>
+            <Nav.Link as={Link} to="/places">Helyek</Nav.Link>
+            <Nav.Link as={Link} to="/guide">Útmutató</Nav.Link> {/* Útmutató, még nem biztos, hogy lesz */}
           </Nav>
+          <Navbar.Text>
+            {currentUser && currentUser.uid === adminUser ?
+              "Bejelentkezve mint: Admin" :
+              currentUser ? `Bejelentkezve mint: ${currentUser.email}` : ""
+            }
+            
+          </Navbar.Text>
           <Nav>
-            <Nav.Link href="#deets">More deets</Nav.Link>
-            <Nav.Link eventKey={2} href="#memes">
-              Dank memes
-            </Nav.Link>
+            {!currentUser && <Nav.Link as={Link} to="/login">Bejelentkezés</Nav.Link>}
+            {!currentUser && <Nav.Link as={Link} to="/register">Regisztráció</Nav.Link>}
+            {currentUser && <Nav.Link onClick={logOut}>Kijelentkezés</Nav.Link>}
           </Nav>
         </Navbar.Collapse>
       </Container>
@@ -37,4 +39,4 @@ function Navbar() {
   );
 }
 
-export default Navbar;
+export default Navigationbar;
