@@ -1,0 +1,25 @@
+{
+    "nav": {
+        "main": "Toilettenfinder",
+        "places": "Orte",
+        "guide": "Anleitung",
+        "login": "Einloggen",
+        "register": "Registrieren",
+        "logout": "Ausloggen"
+    },
+    "login":{
+        "usernotfound": "Benutzer nicht gefunden!",
+        "wrongpassword": "Falsche E-Mail-Adresse oder Passwort!",
+        "error": "Es ist ein Fehler aufgetreten, bitte versuche es später erneut.",
+        "googleerror": "Es ist ein Fehler bei der Anmeldung mit Google aufgetreten.",
+        "login": "Einloggen",
+        "email": "E-Mail-Adresse",
+        "password": "Passwort",
+        "or": "oder",
+        "forgot": "Passwort vergessen?",
+        "google": "Mit Google einloggen",
+        "resetb": "",
+        "resets": "Hier",
+        "resete": "kannst du es zurücksetzen."
+    }
+}

@@ -7,7 +7,6 @@ import '../Map.css';
 import { db, adminUser } from "../config/firebase";
 import { getDocs, collection } from "firebase/firestore";
 // import ReactMapGl, { FullscreenControl, GeolocateControl, Source, Layer } from 'react-map-gl';
-import { auth } from '../config/firebase';
 import Map, {NavigationControl, Marker, GeolocateControl, Layer, Source} from 'react-map-gl';
 import { downloadPlaces } from './fbtojson';
 import AuthContext from '../contexts/logoutcontext';
@@ -120,7 +119,7 @@ const Mbox = ({ onClick, filter, setMe, route }) => {
                     
         );
         }} />
-        <NavigationControl position="bottom-left"  />
+        <NavigationControl position="top-right"  />
         {filtered && filtered.map((feature) => {
             return (
                 <Marker

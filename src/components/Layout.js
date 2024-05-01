@@ -4,6 +4,7 @@ import AuthContext from "../contexts/logoutcontext";
 import { auth } from "../config/firebase";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import Navigationbar from "../pages/navbar";
+import Loading from "react-fullscreen-loading";
 
 /**
  * Layout wraps the main application layout.
@@ -11,11 +12,13 @@ import Navigationbar from "../pages/navbar";
  */
 const Layout = () => {
   const [currentUser, setCurrentUser] = useState(auth.currentUser);
+  const [isLoading, setIsLoading] = useState(true);
 
 
   //Listens to the auth state and sets the current user
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      setIsLoading(false);
       setCurrentUser(user);
     });
 
@@ -44,12 +47,16 @@ const Layout = () => {
 
   //Render the layout
   return (
-    <AuthContext.Provider value={{ currentUser, logOut }}>
-      {location.pathname === "/" ? <Outlet /> : <>
-        <Navigationbar />
-        <Outlet />
-      </>}
-    </AuthContext.Provider>
+    <>
+      {isLoading ? <Loading loading background="#ffffff" loaderColor="#3498db" /> :
+      <AuthContext.Provider value={{ currentUser, logOut }}>
+        {location.pathname === "/" ? <Outlet /> : <>
+          <Navigationbar />
+          <Outlet />
+        </>}
+      </AuthContext.Provider>
+      }
+    </>
   )
 };
 

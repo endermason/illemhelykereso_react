@@ -1,0 +1,25 @@
+{
+    "nav": {
+        "main": "Restroom Finder",
+        "places": "Places",
+        "guide": "Guide",
+        "login": "Login",
+        "register": "Register",
+        "logout": "Logout"
+    },
+    "login":{
+        "usernotfound": "User not found!",
+        "wrongpassword": "Wrong email or password!",
+        "error": "An error occurred, please try again later.",
+        "googleerror": "An error occurred while logging in with Google, please try again later.",
+        "login": "Login",
+        "email": "Email",
+        "password": "Password",
+        "or": "or",
+        "forgot": "Forgot your password?",
+        "google": "Login with Google",
+        "resetb": "You can reset it",
+        "resets": "here.",
+        "resete": ""
+    }
+}

@@ -3,11 +3,11 @@ import { signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/a
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../contexts/logoutcontext';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-
+import { Button, Form, Alert } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
 export const Auth = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
 
     const { logOut } = useContext(AuthContext);
@@ -27,11 +27,11 @@ export const Auth = () => {
             console.error(err);
             // Add Hungarian error handling
             if (err.code === "auth/user-not-found") {
-                setError("Nincs ilyen felhasználó regisztrálva.");
+                setError(t('login.usernotfound'));
             } else if (err.code === "auth/wrong-password") {
-                setError("Hibás jelszó.");
+                setError(t('login.wrongpassword'));
             } else {
-                setError("Bejelentkezési hiba. Kérjük, próbálja újra.");
+                setError(t('login.error'));
             }
         }
     };
@@ -50,7 +50,7 @@ export const Auth = () => {
         } catch (err) {
             console.error(err);
             // Consider adding specific error handling for Google sign-in if necessary
-            setError("Google bejelentkezési hiba. Kérjük, próbálja újra.");
+            setError(t('login.googleerror'));
         }
     };
 
@@ -59,42 +59,31 @@ export const Auth = () => {
     }
 
     return (
-        // <div className="login-page">
-        //     <h1>Bejelentkezés</h1>
-        //     {error && <div className="error-message">{error}</div>} {/* Display error messages */}
-        //     <input placeholder="E-mail cím" type="email" onChange={(e) => setEmail(e.target.value)} />
-        //     <input placeholder="Jelszó" type="password" onChange={(e) => setPassword(e.target.value)} />
-        //     <button className="signin-btn" onClick={signIn}>Bejelentkezés</button>
-        //     <button className="signin-with-google-btn" onClick={signInWithGoogle}>Jelentkezz be Google fiókkal</button>
-        //     <button className="signout-btn" onClick={logOut}>Kijelentkezés</button>
-        //     <br/>
-        //     <p></p>
-        // </div>
-
-        <Form className="login-page" style={{maxWidth: "50vw", textAlign: "center", margin: "auto", paddingTop: "10vh"}}>
-            <h1 style={{fontSize:"1em", margin:"auto", border: "5px solid red", borderRadius:"1em", width: "10em"}}>Bejelentkezés</h1>
-            {error && <div className="error-message"  style={{border: "5px solid red"}}>{error}</div>}
+        <Form className="login-page" style={{ maxWidth: "50vw", textAlign: "center", margin: "auto", paddingTop: "10vh" }}>
+            <h1 style={{ fontSize: "1em", margin: "auto", border: "5px solid red", borderRadius: "1em", width: "10em" }}>{t('login.login')}</h1>
+            {error && <Alert variant="danger">{error}</Alert>}
             <Form.Group controlId="email">
-                <Form.Label>E-mail cím</Form.Label>
+                <Form.Label>{t('login.email')}</Form.Label>
                 <Form.Control
                     type="email"
-                    placeholder="E-mail cím"
+                    placeholder={t('login.email')}
                     onChange={(e) => setEmail(e.target.value)}
                 />
             </Form.Group>
             <Form.Group controlId="password">
-                <Form.Label>Jelszó</Form.Label>
+                <Form.Label>{t('login.password')}</Form.Label>
                 <Form.Control
                     type="password"
-                    placeholder="Jelszó"
+                    placeholder={t('login.password')}
                     onChange={(e) => setPassword(e.target.value)}
                 />
             </Form.Group>
-            <Button className="signin-btn" style={{marginTop:"1vh"}} onClick={signIn}>Bejelentkezés</Button>
-            <p>vagy</p>
-            <Button className="signin-with-google-btn" style={{marginTop:"1vh", marginBottom:"2vh"}} onClick={signInWithGoogle}>Jelentkezz be Google fiókkal</Button>
-            <h2>Elfelejtetted a jelszavad? <b onClick={resetPassword} style={{color: "blue", textDecoration: "underline", cursor: "pointer"}}><i>itt</i></b> visszaállíthatod.</h2>
+            <Button className="signin-btn" style={{ marginTop: "1vh" }} onClick={signIn}>{t('login.login')}</Button>
+            <p>{t('login.or')}</p>
+            <Button className="signin-with-google-btn" style={{ marginTop: "1vh", marginBottom: "2vh" }} onClick={signInWithGoogle}>{t('login.google')}</Button><br />
+            {t('login.forgot')}
+            <p>{t('login.resetb')} <b onClick={resetPassword} style={{ color: "blue", textDecoration: "underline", cursor: "pointer" }}><i>{t('login.resets')}</i></b> {t('login.resete')}</p>
         </Form>
-        
+
     );
 };

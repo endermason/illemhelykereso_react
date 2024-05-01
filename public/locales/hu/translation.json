@@ -1,0 +1,25 @@
+{
+    "nav": {
+        "main": "Illemhelykereső",
+        "places": "Helyek",
+        "guide": "Útmutató",
+        "login": "Bejelentkezés",
+        "register": "Regisztráció",
+        "logout": "Kijelentkezés"
+    },
+    "login":{
+        "usernotfound": "Nincs ilyen felhasználó!",
+        "wrongpassword": "Hibás e-mail cím vagy jelszó!",
+        "error": "Hiba történt, próbáld újra később!",
+        "googleerror": "Hiba történt a Google bejelentkezés során!",
+        "login": "Bejelentkezés",
+        "email": "E-mail cím",
+        "password": "Jelszó",
+        "or": "vagy",
+        "forgot": "Elfelejtetted a jelszavad?",
+        "google": "Bejelentkezés Google-fiókkal",
+        "resetb": "",
+        "resets": "Itt",
+        "resete": "visszaállíthatod."
+    }
+}

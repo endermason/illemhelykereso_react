@@ -12,6 +12,9 @@ import Form from 'react-bootstrap/Form';
 import AuthContext from '../../contexts/logoutcontext';
 import { useContext } from 'react';
 import { days } from '../places';
+import Filters from '../../components/filters';
+import PlaceStatusAlert from "../../components/alert"
+
 
 export const Map = () => {
     const { currentUser } = useContext(AuthContext);
@@ -21,6 +24,7 @@ export const Map = () => {
     const [route, setRoute] = useState(null);
     const [instructions, setInstructions] = useState(null);
     const [distance, setDistance] = useState(null);
+    
 
     const getRoute = async (end) => {
         const query = await fetch(
@@ -38,15 +42,12 @@ export const Map = () => {
         setDistance(distance);
     };
 
+
     //useEffect(() => { document.title = t("signup-title") + " | " + t("app-name"); });
 
 
     const [filterFunction, setFilterFunction] = useState(() => (place) => true);
-    const [filters, setFilters] = useState({});
 
-    useEffect(() => {
-        setFilterFunction(() => (place) => Object.values(filters).every((filter) => filter(place)));
-    }, [filters]);
 
     
     return (
@@ -61,21 +62,21 @@ export const Map = () => {
                     setInstructions(null);
                     setDistance(null);
                 }} filter={filterFunction} setMe={setMe} route={route} /> {/* mbox.js script funkciója, megcsinálja a térképet és a markereket */}
+                
 
-                <Container style={{ zIndex: 5, backgroundColor: "white", position: "absolute", top: 0, left: 0, padding: '1em', width: "30vw" }}>
+                {selectedPlace && (<>
+                    <Container style={{ zIndex: 5, backgroundColor: "white", position: "absolute", top: 0, left: 0, padding: '1em', width: "30vw" }}>
 
-                    {/* {currentUser ? <p>Logged in as {currentUser.email}</p> : <p>No user logged in</p>} */}
+                        {/* {currentUser ? <p>Logged in as {currentUser.email}</p> : <p>No user logged in</p>} */}
 
-                    <Row className='' >
-                        {selectedPlace && (<>
+                        <Row className='' >
+                            <PlaceStatusAlert selectedPlace={selectedPlace} />
                             <h2>{selectedPlace.name}</h2>
                             <p>{selectedPlace.description}</p>
                             <p>{selectedPlace.address}</p>
                             <ul>
                                 {selectedPlace.opening_times.map((time, index) => {
-
                                     return <li key={index}>{`${days[index]}: ${time}`}</li>;
-
                                 })}
                             </ul>
                             <p>{selectedPlace.price === 0 || selectedPlace.price === "" || selectedPlace.price === null ? "Ingyenes" : `${selectedPlace.price} forint`}</p>
@@ -91,60 +92,20 @@ export const Map = () => {
                                     <ol>
                                         {instructions.map((instruction, index) => (
                                             <li key={index}>{instruction}</li>
-
                                         ))}
                                     </ol>
                                 </div>
                             )}
                             {distance && <p>{distance} m</p>}
-                        </>
-                        )}
-
-                    </Row>
-                    {selectedPlace ? <Button onClick={() => setSelectedPlace(null)}>Bezárás</Button> : null}
-                    &nbsp;
-                    <Form>
-                        <Form.Check
-                            type="switch"
-                            label="Akadálymentes"
-
-                            onChange={(e) => {
-                                if (e.target.checked) {
-                                    setFilters((prevFilters) => ({ ...prevFilters, Akadálymentes: (place) => place.accessible }));
-                                } else {
-
-                                    const { Akadálymentes, ...rest } = filters;
-                                    setFilters(rest);
-                                }
-                            }}
-                        />
-                        <Form.Check
-                            type="switch"
-                            label="Nyilvános"
-                            onChange={(e) => {
-                                if (e.target.checked) {
-
-                                    setFilters((prevFilters) => ({ ...prevFilters, Nyilvános: (place) => place.public }));
-                                } else {
-                                    const { Nyilvános, ...rest } = filters;
-                                    setFilters(rest);
-                                }
-                            }}
-                        />
-                        <Form.Check
-                            type="switch"
-                            label="Ingyenes"
-                            onChange={(e) => {
-                                if (e.target.checked) {
-                                    setFilters((prevFilters) => ({ ...prevFilters, Ingyenes: (place) => (place.price === 0 || place.price === "0" || place.price === "ingyenes" || place.price === null) }));
-                                } else {
-                                    const { Ingyenes, ...rest } = filters;
-                                    setFilters(rest);
-                                }
-                            }}
-                        />
-                    </Form>
-                </Container>
+                        </Row>
+                        {selectedPlace ? <Button onClick={() => setSelectedPlace(null)}>Bezárás</Button> : null}
+                    </Container>
+                </>)}
+                <Row style={{ zIndex: 5, position: "absolute", bottom: 30, left: 0, padding: '1em' }}>
+                    <div style={{ backgroundColor: "white" }} className="p-2 rounded">
+                        <Filters setFilterFunction={setFilterFunction} />
+                    </div>
+                </Row>
             </div>
         </div>
     );

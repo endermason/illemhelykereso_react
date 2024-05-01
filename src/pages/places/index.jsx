@@ -1,11 +1,11 @@
 import { useEffect, useState, useCallback, useContext } from "react";
-import { db, adminUser, auth } from "../../config/firebase";
-import { getDocs, collection, addDoc, serverTimestamp, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { db, adminUser } from "../../config/firebase";
+import { collection, addDoc, serverTimestamp, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { Button, Card, Container, Row, Col, Form, Dropdown, Pagination } from "react-bootstrap";
 import { AddressAutofill, AddressMinimap, useConfirmAddress, config } from '@mapbox/search-js-react';
-import styles from '../../Mapbox.module.css';
 import AuthContext from "../../contexts/logoutcontext";
 import { downloadPlaces } from '../../components/fbtojson';
+import Filters from "../../components/filters";
 
 export const days = ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat", "Vasárnap"];
 
@@ -23,6 +23,8 @@ export function Places() {
     const { currentUser } = useContext(AuthContext);
 
     const [placeList, setPlaceList] = useState([]);
+
+    const [addedTodayCount, setAddedTodayCount] = useState(0);
 
     const [errorMessage, setErrorMessage] = useState(null);
 
@@ -65,6 +67,12 @@ export function Places() {
     useEffect(() => {
         config.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
         getPlaceList();
+
+        setAddedTodayCount(placeList.filter(
+            (place) =>
+                place.added.seconds > (Date.now() / 1000 - 24 * 60 * 60) &&
+                place.added_by === currentUser.uid
+        ).length);
     }, [])
 
     const { formRef } = useConfirmAddress({
@@ -102,8 +110,12 @@ export function Places() {
                 place.address.toLowerCase() === (feature.properties.street + " " + feature.properties.address_number).toLowerCase()
         );
 
+        const addedTodayAlready = adminUser !== currentUser.uid && addedTodayCount >= 1;
+
         if (existingPlace) {
             setErrorMessage("A hely már létezik vagy elfogadásra vár.");
+        } else if (addedTodayAlready) {
+            setErrorMessage("Már adott hozzá 5 helyet az elmúlt 24 órában.");
         } else {
             setErrorMessage(null);
             try {
@@ -120,31 +132,14 @@ export function Places() {
                         longitude: feature.geometry.coordinates[0],
                         opening_times: newPlaceOpenHours.map((day) => `${day.intervalFrom}-${day.intervalTo}`),
                         public: newPlacePublic,
-                        added: serverTimestamp()
-
-
+                        added: serverTimestamp(),
+                        added_by: currentUser.uid,
                     });
 
                 getPlaceList(); // A lista frissítése
 
                 // Reset form
-                setNewPlacePrice("");
-                setNewPlaceComments("");
-                setNewPlaceAccessible(false);
-                setNewPlaceAccepted(false);
-                setNewPlaceOpenHours([
-                    { intervalFrom: "", intervalTo: "" },
-                    { intervalFrom: "", intervalTo: "" },
-                    { intervalFrom: "", intervalTo: "" },
-                    { intervalFrom: "", intervalTo: "" },
-                    { intervalFrom: "", intervalTo: "" },
-                    { intervalFrom: "", intervalTo: "" },
-                    { intervalFrom: "", intervalTo: "" },
-                ]);
-                setNewPlacePublic(false);
-                setShowFormExpanded(false);
-                //setShowValidationText(false);
-                setFeature(null);
+                resetForm();
             }
             catch (err) {
                 console.error(err);
@@ -156,9 +151,24 @@ export function Places() {
     function resetForm() {
         const inputs = document.querySelectorAll("input");
         inputs.forEach(input => input.value = "");
+
+        setNewPlacePrice("");
+        setNewPlaceComments("");
+        setNewPlaceAccessible(false);
+        setNewPlaceAccepted(false);
+        setNewPlaceOpenHours([
+            { intervalFrom: "", intervalTo: "" },
+            { intervalFrom: "", intervalTo: "" },
+            { intervalFrom: "", intervalTo: "" },
+            { intervalFrom: "", intervalTo: "" },
+            { intervalFrom: "", intervalTo: "" },
+            { intervalFrom: "", intervalTo: "" },
+            { intervalFrom: "", intervalTo: "" },
+        ]);
+        setNewPlacePublic(false);
         setShowFormExpanded(false);
-        setFeature(null);
         setShowAddPlaceExpanded(false);
+        setFeature(null);
     }
 
     const [newPlaceOpenHours, setNewPlaceOpenHours] = useState([
@@ -176,6 +186,8 @@ export function Places() {
 
 
 
+    const [filterFunction, setFilterFunction] = useState(() => (place) => true);
+
     //Sorting and pagination
     const [sortOrder, setSortOrder] = useState(Orders.ADDED_ASC);     //Rendezés sorrendje
     const [sortedPlaces, setSortedPlaces] = useState([]);   //Rendezett teljes lista
@@ -186,7 +198,7 @@ export function Places() {
 
     //Handle sorting order change
     const handleSortOrderChange = useCallback((order) => {
-        let newSortedPlaces = [...placeList].filter((place) => place.accepted || (currentUser && currentUser.uid === adminUser)); //TODO extend with filter
+        let newSortedPlaces = [...placeList].filter((place) => place.accepted || (currentUser && currentUser.uid === adminUser)).filter(filterFunction); //TODO extend with filter
 
         switch (order) {
             case Orders.PLACE_ASC:
@@ -220,24 +232,26 @@ export function Places() {
         }
 
         const newPageNumbers = [];
-        for (let i = 1; i <= Math.ceil(newSortedPlaces.length / 2); i++) { //2 place / oldal
+        for (let i = 1; i <= Math.ceil(newSortedPlaces.length / 10); i++) { //2 place / oldal
             newPageNumbers.push(i);
         }
 
-        setActualPlaces(newSortedPlaces.slice(0, 2)); //2 place / oldal
+        setActualPlaces(newSortedPlaces.slice(0, 10)); //2 place / oldal
         setCurrentPage(1);
         setPageNumbers(newPageNumbers);
         setSortedPlaces(newSortedPlaces);
         setSortOrder(order);
-    }, [placeList]);
+    }, [placeList, filterFunction, currentUser]);
 
 
     //Handle page change
     const handelPageChange = useCallback((pageNumber) => {
-        setActualPlaces(sortedPlaces.slice((pageNumber - 1) * 2, pageNumber * 2)); //2 place / oldal
+        setActualPlaces(sortedPlaces.slice((pageNumber - 1) * 10, pageNumber * 10)); //2 place / oldal
 
         setCurrentPage(pageNumber);
     }, [sortedPlaces]);
+
+    console.log(addedTodayCount)
 
 
     //Update Places on sort order change
@@ -248,10 +262,11 @@ export function Places() {
     return (
         <Container className="Places">
             <h1 style={{ fontSize:"2vw", marginBottom: "5vh" }}>Helyek listája</h1>
-            {errorMessage && <div>{errorMessage}</div>}
             <Row>
-                <Col xs={12} lg={4} className="mb-3 text-start">
-                    Ide jön majd a szűrő
+                <Col xs={12} lg={4} className="mb-3 text-start" >
+                    <Container fluid="xs">
+                    <Filters setFilterFunction={setFilterFunction} />
+                    </Container>
                 </Col>
                 <Col xs={12} lg={4} className="mb-3 text-center">
                 {pageNumbers.length > 1 &&
@@ -284,7 +299,7 @@ export function Places() {
                     </div>
                 </Col>
             </Row>
-            {currentUser && <>
+            {currentUser && (addedTodayCount < 1 || adminUser === currentUser.uid) && <>
                 {!showAddPlaceExpanded &&
                     <div
                         id="manual-entry-place"
@@ -304,13 +319,14 @@ export function Places() {
                                 </AddressAutofill>
                             </Form.Group>
                             {!showFormExpanded &&
-                                <div
+                                <Button
+                                    variant="secondary"
                                     id="manual-entry"
-                                    className="btn btn-primary mb-3 mt-3"
+                                    className="mb-3 mt-3"
                                     onClick={() => setShowFormExpanded(true)}
                                 >
                                     Adjon meg egy címet manuálisan
-                                </div>
+                                </Button>
                             }
                             <div className="secondary-inputs" style={{ display: showFormExpanded ? 'block' : 'none' }}>
                                 <Form.Group controlId="address-second">
@@ -365,7 +381,7 @@ export function Places() {
                                 <Form.Control type="text" placeholder="Megjegyzés" value={newPlaceComments} onChange={(e) => setNewPlaceComments(e.target.value)} />
                             </Form.Group>
                         </Col>
-                        <Col xs={12} lg={6} className="mb-3">
+                        <Col xs={12} lg={6} className="mb-3 text-start">
                             <Form.Group controlId="accessible">
                                 <Form.Check
                                     type="checkbox"
@@ -375,7 +391,7 @@ export function Places() {
                                 />
                             </Form.Group>
                         </Col>
-                        <Col xs={12} lg={6} className="mb-3">
+                        <Col xs={12} lg={6} className="mb-3 text-start">
                             <Form.Group controlId="public">
                                 <Form.Check
                                     type="checkbox"
@@ -385,13 +401,15 @@ export function Places() {
                                 />
                             </Form.Group>
                         </Col>
+                        <Col xs={12} className="border-top mb-2 p-3">
+                            Nyitvatartás
+                        </Col>
                         {days.map((day, index) => (<>
                             <Col xs={12} lg={4} className="mb-3 d-flex justify-content-center align-items-end">
                                 {day}
                             </Col>
                             <Col xs={6} lg={4} className="mb-3">
                                 <Form.Group controlId={`interval-from-${index}`}>
-                                    <Form.Label>-tól</Form.Label>
                                     <Form.Control type="text" placeholder="-tól" value={newPlaceOpenHours[index].intervalFrom} onChange={(e) => {
                                         const newOpenHours = [...newPlaceOpenHours];
                                         newOpenHours[index].intervalFrom = e.target.value;
@@ -401,7 +419,6 @@ export function Places() {
                             </Col>
                             <Col xs={6} lg={4} className="mb-3">
                                 <Form.Group controlId={`interval-from-${index}`}>
-                                    <Form.Label>-ig</Form.Label>
                                     <Form.Control type="text" placeholder="-ig" value={newPlaceOpenHours[index].intervalTo} onChange={(e) => {
                                         const newOpenHours = [...newPlaceOpenHours];
                                         newOpenHours[index].intervalTo = e.target.value;
@@ -410,16 +427,18 @@ export function Places() {
                                 </Form.Group>
                             </Col>
                         </>))}
+                        <Col xs={12} className="border-bottom mt-2 mb-3" />
 
                         {/* Form buttons */}
                         {showFormExpanded &&
-                            <div className="mb30 submit-btns">
-                                <button type="submit" className="btn round" id="btn-confirm">
+                            <div className="mb-3 d-flex justify-content-center align-items-end">
+                                {errorMessage && <div>{errorMessage}</div>}
+                                <Button variant="primary" type="submit" className="me-2">
                                     Hely hozzáadása
-                                </button>
-                                <button type="button" className="btn round btn--gray-light ml3" id="btn-reset" onClick={resetForm}>
+                                </Button>
+                                <Button variant="secondary" type="button" className="ms-2" onClick={resetForm}>
                                     Visszaállítás
-                                </button>
+                                </Button>
                             </div>
                         }
                     </Row>
@@ -433,14 +452,12 @@ export function Places() {
                             <Card.Title>{place.city}, {place.address}</Card.Title>
                             <Card.Subtitle style={{ marginBottom: "1rem" }}>{place.comments}</Card.Subtitle>
                             <Card.Text as="div">
-                                {place.public ? "Publikus " : "Privát "}    {/*A hely publikus vagy privát*/}
-                                <ul>
+                                {place.public ? "Publikus " : "Privát "}<br />    {/*A hely publikus vagy privát*/}
                                     {place.opening_times.map((time, index) => {
 
-                                        return <li key={index}>{`${days[index]}: ${time}`}</li>;    //A nyitvatartási idők megjelenítése listában
+                                        return <>{`${days[index]}: ${time}`}<br /></>;    //A nyitvatartási idők megjelenítése listában
 
                                     })}
-                                </ul>
                                 <br />
                                 {
                                     place.rating === undefined
