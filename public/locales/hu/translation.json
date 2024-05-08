@@ -3,11 +3,12 @@
         "main": "Illemhelykereső",
         "places": "Helyek",
         "guide": "Útmutató",
+        "loggedinas": "Bejelentkezve mint",
         "login": "Bejelentkezés",
         "register": "Regisztráció",
         "logout": "Kijelentkezés"
     },
-    "login":{
+    "login": {
         "usernotfound": "Nincs ilyen felhasználó!",
         "wrongpassword": "Hibás e-mail cím vagy jelszó!",
         "error": "Hiba történt, próbáld újra később!",
@@ -20,6 +21,79 @@
         "google": "Bejelentkezés Google-fiókkal",
         "resetb": "",
         "resets": "Itt",
-        "resete": "visszaállíthatod."
+        "resete": "visszaállíthatod.",
+        "reset": "<1>Itt</1> visszaállíthatod."
+    },
+    "alert": {
+        "openswithin30": "30 percen belül nyit",
+        "closeswithin30": "30 percen belül zár",
+        "open": "jelenleg nyitva",
+        "closed": "jelenleg zárva"
+    },
+    "map": {
+        "openhours": "Nyitvatartás",
+        "free": "Ingyenes",
+        "accessible": "Akadálymentes",
+        "notaccessible": "Nem akadálymentes",
+        "public": "Az illemhely típusa: Nyilvános",
+        "private": "Az illemhely típusa: Magán",
+        "norating": "Az illemhelyet még nem értékelték",
+        "rating": "Az illemhely átlagos értékelése: ",
+        "navigatemehere": "Vezess el ide!",
+        "close": "Bezárás",
+        "filter": "Szűrés"
+    },
+    "filter": {
+        "accessible": "Akadálymentes",
+        "free": "Ingyenes",
+        "public": "Nyilvános",
+        "currentlyopen": "Jelenleg nyitva"
+    },
+    "days": {
+        "monday": "Hétfő",
+        "tuesday": "Kedd",
+        "wednesday": "Szerda",
+        "thursday": "Csütörtök",
+        "friday": "Péntek",
+        "saturday": "Szombat",
+        "sunday": "Vasárnap"
+    },
+    "places": {
+        "title": "Illemhelyek listája",
+        "sort": {
+            "places-asc": "Cím szerint A-tól Z-ig",
+            "places-desc": "Cím szerint Z-től A-ig",
+            "rating-asc": "Értékelés szerint növekvő",
+            "rating-desc": "Értékelés szerint csökkenő",
+            "added-asc": "Hozzáadás időpontja szerint növekvő",
+            "added-desc": "Hozzáadás időpontja szerint csökkenő"
+        },
+        "add": {
+            "addplace": "Illemhely hozzáadása",
+            "address": "Cím",
+            "addresspaceholder": "pl. 9026 Győr, Egyetem tér 1.",
+            "manualentry": "Hely manuális megadása",
+            "address-second": "Cím 2. sora",
+            "address-secondpaceholder": "pl. A élpület, 2. emelet, 3. ajtó",
+            "city": "Település",
+            "cityplaceholder": "pl. Győr",
+            "county": "Állam/Régió/Vármegye",
+            "countyplaceholder": "pl. Győr-Moson-Sopron",
+            "postalcode": "Irányítószám",
+            "postalcodeplaceholder": "pl. 9026",
+            "savemarker": "Jelölő mentése",
+            "cancelmarker": "Mégse",
+            "adjustmarker": "Jelölő áthelyezése",
+            "mapfooter": "Állítsa be a jelölőt a térképen, ha nem pontosan egyezik a helyszínnel. Ez segít javítani az cím adatait.",
+            "price": "Ár",
+            "pricepaceholder": "pl. 200 Ft",
+            "comments": "Megjegyzés",
+            "commentspaceholder": "pl. A 3. emeleten, a lépcsőnél balra",
+            "accessible": "Akadálymentes",
+            "public": "Nyilvános"
+        },
+        "delete": "Hely törlése",
+        "accept": "Hely elfogadása",
+        "openmap": "Megnyitás Google Térképen"
     }
 }

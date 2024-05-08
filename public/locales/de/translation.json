@@ -3,11 +3,12 @@
         "main": "Toilettenfinder",
         "places": "Orte",
         "guide": "Anleitung",
+        "loggedinas": "Eingeloggt als",
         "login": "Einloggen",
         "register": "Registrieren",
         "logout": "Ausloggen"
     },
-    "login":{
+    "login": {
         "usernotfound": "Benutzer nicht gefunden!",
         "wrongpassword": "Falsche E-Mail-Adresse oder Passwort!",
         "error": "Es ist ein Fehler aufgetreten, bitte versuche es später erneut.",
@@ -18,8 +19,78 @@
         "or": "oder",
         "forgot": "Passwort vergessen?",
         "google": "Mit Google einloggen",
-        "resetb": "",
-        "resets": "Hier",
-        "resete": "kannst du es zurücksetzen."
+        "reset": "<1>Hier</1> kannst du es zurücksetzen."
+    },
+    "alert": {
+        "openswithin30": "öffnet innerhalb von 30 Minuten",
+        "closeswithin30": "schließt innerhalb von 30 Minuten",
+        "open": "zurzeit geöffnet",
+        "closed": "zurzeit geschlossen"
+    },
+    "map": {
+        "openhours": "Öffnungszeiten",
+        "free": "Kostenlos",
+        "accessible": "Barrierefrei",
+        "notaccessible": "Nicht barrierefrei",
+        "public": "Öffentlich",
+        "private": "Privat",
+        "norating": "Noch keine Bewertung",
+        "rating": "Durchschnittliche Bewertung: ",
+        "navigatemehere": "Navigiere mich hierher",
+        "close": "Schließen",
+        "filter": "Filter"
+    },
+    "filter": {
+        "accessible": "Barrierefrei",
+        "free": "Kostenlos",
+        "public": "Öffentlich",
+        "currentlyopen": "Zurzeit geöffnet"
+    },
+    "days": {
+        "monday": "Montag",
+        "tuesday": "Dienstag",
+        "wednesday": "Mittwoch",
+        "thursday": "Donnerstag",
+        "friday": "Freitag",
+        "saturday": "Samstag",
+        "sunday": "Sonntag"
+    },
+    "places": {
+        "title": "Liste der Toiletten",
+        "sort": {
+            "places-asc": "Adresse von A-Z",
+            "places-desc": "Adresse von Z-A",
+            "rating-asc": "Bewertung aufsteigend",
+            "rating-desc": "Bewertung absteigend",
+            "added-asc": "Hinzugefügt aufsteigend",
+            "added-desc": "Hinzugefügt absteigend"
+        },
+        "add": {
+            "addplace": "Ort hinzufügen",
+            "address": "Adresse",
+            "addresspaceholder": "z.B. Mariahilfer Straße 6, 1060 Wien",
+            "manualentry": "Manuelle Eingabe",
+            "address-second": "Adresszusatz",
+            "address-secondpaceholder": "z.B. 3. Stock, Tür 12",
+            "city": "Ortschaft",
+            "cityplaceholder": "z.B. Wien",
+            "county": "Bundesland/Region/Kreis",
+            "countyplaceholder": "z.B. Burgenland",
+            "postalcode": "Postleitzahl",
+            "postalcodeplaceholder": "z.B. 1060",
+            "savemarker": "Markierung speichern",
+            "cancelmarker": "Abbrechen",
+            "adjustmarker": "Markierung anpassen",
+            "mapfooter": "Passen Sie die Markierung an, um den genauen Standort des Ortes zu markieren.",
+            "price": "Preis",
+            "pricepaceholder": "z.B. 0.50 €",
+            "comments": "Kommentare",
+            "commentspaceholder": "z.B. Nur für Kunden",
+            "accessible": "Barrierefrei",
+            "public": "Öffentlich"
+        },
+        "delete": "Ort löschen",
+        "accept": "Ort akzeptieren",
+        "openmap": "Ort auf Google Maps öffnen"
     }
 }

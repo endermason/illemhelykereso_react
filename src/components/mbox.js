@@ -106,7 +106,7 @@ const Mbox = ({ onClick, filter, setMe, route }) => {
         </Source>
         }
         <GeolocateControl
-        position="top-right" 
+        position="bottom-right" 
         ref={geoControlRef} 
         positionOptions={{ enableHighAccuracy: true }} 
         trackUserLocation={true} 
@@ -119,7 +119,7 @@ const Mbox = ({ onClick, filter, setMe, route }) => {
                     
         );
         }} />
-        <NavigationControl position="top-right"  />
+        <NavigationControl position="bottom-right"  />
         {filtered && filtered.map((feature) => {
             return (
                 <Marker

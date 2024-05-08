@@ -4,7 +4,7 @@ import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../contexts/logoutcontext';
 import { Button, Form, Alert } from 'react-bootstrap';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 
 export const Auth = () => {
     const { t } = useTranslation();
@@ -82,7 +82,7 @@ export const Auth = () => {
             <p>{t('login.or')}</p>
             <Button className="signin-with-google-btn" style={{ marginTop: "1vh", marginBottom: "2vh" }} onClick={signInWithGoogle}>{t('login.google')}</Button><br />
             {t('login.forgot')}
-            <p>{t('login.resetb')} <b onClick={resetPassword} style={{ color: "blue", textDecoration: "underline", cursor: "pointer" }}><i>{t('login.resets')}</i></b> {t('login.resete')}</p>
+            <p><Trans i18nKey='login.reset'> <b onClick={resetPassword} style={{ color: "blue", textDecoration: "underline", cursor: "pointer" }}><i></i></b></Trans></p>
         </Form>
 
     );

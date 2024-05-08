@@ -13,6 +13,63 @@ code {
 }
 
 .grid-container {
-  width:30%;  
-  display:inline-block
+  width: 30%;
+  display: inline-block
+}
+
+
+.extra-container {
+  width: 100%;
+  max-width: 100%;
+}
+
+.info-container {
+  height: 100%;
+
+}
+
+.until-lg {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .extra-container {
+    max-width: 550px;
+  }
+
+  .info-container {
+    height: fit-content;
+  }
+
+  .until-lg {
+    display: block;
+  }
+}
+
+@media (min-width:992px) {
+  .hr-sect {
+    display: flex;
+    flex-basis: 100%;
+    align-items: center;
+    color: rgba(0, 0, 0, 0.35);
+    font-size: 15px;
+    margin: 8px 0px;
+  }
+
+  .hr-sect::before,
+  .hr-sect::after {
+    content: "";
+    flex-grow: 1;
+    background: rgba(0, 0, 0, 0.35);
+    height: 1px;
+    font-size: 0px;
+    line-height: 0px;
+    margin: 0px 16px;
+  }
+}
+
+@media (max-width: 991px) {
+  .filter-label {
+    display: none;
+  }
 }

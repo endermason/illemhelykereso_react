@@ -6,9 +6,12 @@ import { AddressAutofill, AddressMinimap, useConfirmAddress, config } from '@map
 import AuthContext from "../../contexts/logoutcontext";
 import { downloadPlaces } from '../../components/fbtojson';
 import Filters from "../../components/filters";
+import { useTranslation } from 'react-i18next';
 
-export const days = ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat", "Vasárnap"];
-
+export const useDays = () => {
+  const { t } = useTranslation();
+  return [t('days.monday'), t('days.tuesday'), t('days.wednesday'), t('days.thursday'), t('days.friday'), t('days.saturday'), t('days.sunday')];
+};
 const Orders = {
     PLACE_ASC: "place-asc",
     PLACE_DESC: "place-desc",
@@ -20,6 +23,8 @@ const Orders = {
 
 
 export function Places() {
+    const { t } = useTranslation();
+    const days = useDays();
     const { currentUser } = useContext(AuthContext);
 
     const [placeList, setPlaceList] = useState([]);
@@ -256,12 +261,12 @@ export function Places() {
 
     //Update Places on sort order change
     useEffect(() => {
-        handleSortOrderChange(sortOrder); //TODO - add filter here too as parameter
-    }, [placeList, handleSortOrderChange, sortOrder]); //TODO - add filter here
+        handleSortOrderChange(sortOrder);
+    }, [placeList, handleSortOrderChange, sortOrder]); 
 
     return (
         <Container className="Places">
-            <h1 style={{ fontSize:"2vw", marginBottom: "5vh" }}>Helyek listája</h1>
+            <h1 style={{ marginBottom: "5vh" }}>{t('places.title')}</h1>
             <Row>
                 <Col xs={12} lg={4} className="mb-3 text-start" >
                     <Container fluid="xs">
@@ -285,15 +290,15 @@ export function Places() {
                 <div>
                         <Dropdown onSelect={handleSortOrderChange}>
                             <Dropdown.Toggle id="order">
-                                {`sort-order-${sortOrder}`} {/* use t("sort-order-place-asc") */}
+                                {t(`places.sort.${sortOrder}`)} {/* use t("sort-order-place-asc") */}
                             </Dropdown.Toggle>
                             <Dropdown.Menu>
-                                <Dropdown.Item eventKey="place-asc">{"Cím szerint A-tól Z-ig"}</Dropdown.Item>
-                                <Dropdown.Item eventKey="place-desc">{"Cím szerint Z-től A-ig"}</Dropdown.Item>
-                                <Dropdown.Item eventKey="rating-asc">{"Értékelés szerint növekvő"}</Dropdown.Item>
-                                <Dropdown.Item eventKey="rating-desc">{"Értékelés szerint csökkenő"}</Dropdown.Item>
-                                <Dropdown.Item eventKey="added-asc">{"Hozzáadás időpontja szerint növekvő"}</Dropdown.Item>
-                                <Dropdown.Item eventKey="added-desc">{"Hozzáadás időpontja szerint csökkenő"}</Dropdown.Item>
+                                <Dropdown.Item eventKey="place-asc">{t('places.sort.places-asc')}</Dropdown.Item>
+                                <Dropdown.Item eventKey="place-desc">{t('places.sort.places-desc')}</Dropdown.Item>
+                                <Dropdown.Item eventKey="rating-asc">{t('places.sort.rating-asc')}</Dropdown.Item>
+                                <Dropdown.Item eventKey="rating-desc">{t('places.sort.rating-desc')}</Dropdown.Item>
+                                <Dropdown.Item eventKey="added-asc">{t('places.sort.added-asc')}</Dropdown.Item>
+                                <Dropdown.Item eventKey="added-desc">{t('places.sort.added-desc')}</Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>
                     </div>
@@ -306,16 +311,16 @@ export function Places() {
                         className="btn btn-primary mb-3 mt-3"
                         onClick={() => setShowAddPlaceExpanded(true)}
                     >
-                        Hely hozzáadása
+                        {t('places.add.addplace')}
                     </div>
                 }
                 <Form ref={formRef} onSubmit={onSubmitPlace}>
                     <Row style={{ display: showAddPlaceExpanded ? 'flex' : 'none' }}>
                         <Col xs={12} lg={6} className="mb-3">
                             <Form.Group controlId="address-first">
-                                <Form.Label>Cím</Form.Label>
+                                <Form.Label>{t('places.add.address')}</Form.Label>
                                 <AddressAutofill accessToken={process.env.REACT_APP_MAPBOX_ACCESS_TOKEN} onRetrieve={handleRetrieve}>
-                                    <Form.Control required type="text" placeholder="Adjon meg egy címet, pl. 9026 Győr, Egyetem tér 1." name="address-first" autoComplete="address-line1" id="mapbox-autofill" />
+                                    <Form.Control required type="text" placeholder={t('places.add.addresspaceholder')} name="address-first" autoComplete="address-line1" id="mapbox-autofill" />
                                 </AddressAutofill>
                             </Form.Group>
                             {!showFormExpanded &&
@@ -325,25 +330,25 @@ export function Places() {
                                     className="mb-3 mt-3"
                                     onClick={() => setShowFormExpanded(true)}
                                 >
-                                    Adjon meg egy címet manuálisan
+                                    {t('places.add.manualentry')}
                                 </Button>
                             }
                             <div className="secondary-inputs" style={{ display: showFormExpanded ? 'block' : 'none' }}>
                                 <Form.Group controlId="address-second">
-                                    <Form.Label>Cím 2. sora</Form.Label>
-                                    <Form.Control type="text" placeholder="Épület, emelet, ajtó, stb." name="address-second" autoComplete="address-line2" />
+                                    <Form.Label>{t('places.add.address-second')}</Form.Label>
+                                    <Form.Control type="text" placeholder={t('places.add.address-secondpaceholder')} name="address-second" autoComplete="address-line2" />
                                 </Form.Group>
                                 <Form.Group controlId="city">
-                                    <Form.Label>Település</Form.Label>
-                                    <Form.Control type="text" placeholder="Település" name="city" autoComplete="address-level2" />
+                                    <Form.Label>{t('places.add.city')}</Form.Label>
+                                    <Form.Control type="text" placeholder={t('places.add.citypaceholder')} name="city" autoComplete="address-level2" />
                                 </Form.Group>
                                 <Form.Group controlId="state">
-                                    <Form.Label>Állam/Régió/Vármegye</Form.Label>
-                                    <Form.Control type="text" placeholder="Állam/Régió/Vármegye" name="state" autoComplete="address-level1" />
+                                    <Form.Label>{t('places.add.county')}</Form.Label>
+                                    <Form.Control type="text" placeholder={t('places.add.countypaceholder')} name="state" autoComplete="address-level1" />
                                 </Form.Group>
                                 <Form.Group controlId="zip">
-                                    <Form.Label>Irányítószám</Form.Label>
-                                    <Form.Control type="text" placeholder="Irányítószám" name="zip" autoComplete="postal-code" />
+                                    <Form.Label>{t('places.add.postalcode')}</Form.Label>
+                                    <Form.Control type="text" placeholder={t('places.add.postalcodepaceholder')} name="zip" autoComplete="postal-code" />
                                 </Form.Group>
                             </div>
                         </Col>
@@ -361,31 +366,31 @@ export function Places() {
                                         feature={feature}
                                         show={showMinimap}
                                         onSaveMarkerLocation={handleSaveMarkerLocation}
-                                        saveBtnText="Mentés"
-                                        cancelBtnText="Mégse"
-                                        adjustBtnText="Jelölő áthelyezése"
-                                        footer="Állítsa be a jelölőt a térképen, ha nem pontosan egyezik a helyszínnel. Ez segít javítani az cím adatait."
+                                        saveBtnText={t('places.add.savemarker')}
+                                        cancelBtnText={t('places.add.cancelmarker')}
+                                        adjustBtnText={t('places.add.adjustmarker')}
+                                        footer={t('places.add.mapfooter')}
                                     />
                                 </div>
                             </center>
                         </Col>
                         <Col xs={12} lg={6} className="mb-3">
                             <Form.Group controlId="price">
-                                <Form.Label>Ár</Form.Label>
-                                <Form.Control type="number" placeholder="Ár" value={newPlacePrice} onChange={(e) => setNewPlacePrice(Number(e.target.value))} />
+                                <Form.Label>{t('places.add.price')}</Form.Label>
+                                <Form.Control type="number" placeholder={t('places.add.pricepaceholder')} value={newPlacePrice} onChange={(e) => setNewPlacePrice(Number(e.target.value))} />
                             </Form.Group>
                         </Col>
                         <Col xs={12} lg={6} className="mb-3">
                             <Form.Group controlId="comments">
-                                <Form.Label>Megjegyzés</Form.Label>
-                                <Form.Control type="text" placeholder="Megjegyzés" value={newPlaceComments} onChange={(e) => setNewPlaceComments(e.target.value)} />
+                                <Form.Label>{t('places.add.comments')}</Form.Label>
+                                <Form.Control type="text" placeholder={t('places.add.commentspaceholder')} value={newPlaceComments} onChange={(e) => setNewPlaceComments(e.target.value)} />
                             </Form.Group>
                         </Col>
                         <Col xs={12} lg={6} className="mb-3 text-start">
                             <Form.Group controlId="accessible">
                                 <Form.Check
                                     type="checkbox"
-                                    label="Akadálymentes"
+                                    label={t('places.add.accessible')}
                                     checked={newPlaceAccessible}
                                     onChange={(e) => setNewPlaceAccessible(e.target.checked)}
                                 />
@@ -395,7 +400,7 @@ export function Places() {
                             <Form.Group controlId="public">
                                 <Form.Check
                                     type="checkbox"
-                                    label="Nyilvános"
+                                    label={t('places.add.public')}
                                     checked={newPlacePublic}
                                     onChange={(e) => setNewPlacePublic(e.target.checked)}
                                 />
@@ -452,7 +457,7 @@ export function Places() {
                             <Card.Title>{place.city}, {place.address}</Card.Title>
                             <Card.Subtitle style={{ marginBottom: "1rem" }}>{place.comments}</Card.Subtitle>
                             <Card.Text as="div">
-                                {place.public ? "Publikus " : "Privát "}<br />    {/*A hely publikus vagy privát*/}
+                                {place.public ? t('map.public') : t('map.private')}<br />    {/*A hely publikus vagy privát*/}
                                     {place.opening_times.map((time, index) => {
 
                                         return <>{`${days[index]}: ${time}`}<br /></>;    //A nyitvatartási idők megjelenítése listában
@@ -461,15 +466,15 @@ export function Places() {
                                 <br />
                                 {
                                     place.rating === undefined
-                                        ? "Nincs értékelés"
-                                        : (Object.values(place.rating).reduce((a, b) => a + b, 0) / Object.keys(place.rating).length).toFixed(2) //Az értékelések átlaga 2 tizedesjegy pontossággal
+                                        ? t('map.norating')
+                                        : <>{t('map.rating')} {(Object.values(place.rating).reduce((a, b) => a + b, 0) / Object.keys(place.rating).length).toFixed(2)}</> //Az értékelések átlaga 2 tizedesjegy pontossággal
                                 }
                             </Card.Text>
-
                             {currentUser && currentUser.uid === adminUser && (  //Csak az admin tudja törölni és elfogadni a helyeket
                                 <>
-                                    <Button onClick={() => deletePlace(place.id)}>Hely törlése</Button>
-                                    {place.accepted ? "" : <Button onClick={() => acceptPlace(place.id)}>Hely elfogadása</Button>}  {/*Ha a hely nincs elfogadva, akkor megjelenik az elfogadás gomb*/}
+                                <Button href={`https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`} target="_blank">{t('places.openmap')}</Button> {/*A hely megnyitása a Google Maps-en*/}
+                                    <Button onClick={() => deletePlace(place.id)}>{t('places.delete')}</Button>
+                                    {!place.accepted && <Button onClick={() => acceptPlace(place.id)} className="ms-2">{t('places.accept')}</Button>}  {/*Ha a hely nincs elfogadva, akkor megjelenik az elfogadás gomb*/}
 
                                 </>
                             )}

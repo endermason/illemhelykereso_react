@@ -6,12 +6,12 @@ import { useContext } from 'react';
 import AuthContext from '../contexts/logoutcontext';
 import { Link } from "react-router-dom";
 import { adminUser } from '../config/firebase';
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 const lngs = {
-  hu: { nativeName: 'Magyar' },
-  en: { nativeName: 'English' },
-  de: { nativeName: 'Deutsch' }
+  hu: { nativeName: '🇭🇺 Magyar' },
+  en: { nativeName: '🇬🇧 English' },
+  de: { nativeName: '🇩🇪 Deutsch' }
 };
 
 function Navigationbar() {
@@ -21,7 +21,7 @@ function Navigationbar() {
   return (
     <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary">
       <Container>
-        <Navbar.Brand as={Link} to="/"><Trans i18nKey={"nav.main"}>Illemhelykereső</Trans></Navbar.Brand>
+        <Navbar.Brand as={Link} to="/">{t('nav.main')}</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="me-auto">
@@ -30,8 +30,8 @@ function Navigationbar() {
           </Nav>
           <Navbar.Text>
             {currentUser && currentUser.uid === adminUser ?
-              "Bejelentkezve mint: Admin" :
-              currentUser ? `Bejelentkezve mint: ${currentUser.email}` : ""
+              <i>{t('nav.loggedinas')}: <b>Admin</b> </i>:
+              currentUser ? <i>{t('nav.loggedinas')}: {currentUser.email}</i> : ""
             }
             
           </Navbar.Text>

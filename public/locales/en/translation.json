@@ -3,11 +3,12 @@
         "main": "Restroom Finder",
         "places": "Places",
         "guide": "Guide",
+        "loggedinas": "Logged in as",
         "login": "Login",
         "register": "Register",
         "logout": "Logout"
     },
-    "login":{
+    "login": {
         "usernotfound": "User not found!",
         "wrongpassword": "Wrong email or password!",
         "error": "An error occurred, please try again later.",
@@ -20,6 +21,79 @@
         "google": "Login with Google",
         "resetb": "You can reset it",
         "resets": "here.",
-        "resete": ""
+        "resete": "",
+        "reset": "You can reset it <1>here</1>."
+    },
+    "alert": {
+        "openswithin30": "opens within the next 30 minutes",
+        "closeswithin30": "closes within the next 30 minutes",
+        "open": "currently open",
+        "closed": "currently closed"
+    },
+    "map": {
+        "openhours": "Open hours",
+        "free": "Free",
+        "accessible": "Accessible",
+        "notaccessible": "Not accessible",
+        "public": "Public",
+        "private": "Private",
+        "norating": "No rating yet for this place",
+        "rating": "Average rating for this place: ",
+        "navigatemehere": "Navigate me here",
+        "close": "Close",
+        "filter": "Filter"
+    },
+    "filter": {
+        "accessible": "Accessible",
+        "free": "Free",
+        "public": "Public",
+        "currentlyopen": "Currently open"
+    },
+    "days": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+    },
+    "places": {
+        "title": "List of Restrooms",
+        "sort": {
+            "places-asc": "Address A-Z",
+            "places-desc": "Address Z-A",
+            "rating-asc": "Rating ascending",
+            "rating-desc": "Rating descending",
+            "added-asc": "Added (oldest first)",
+            "added-desc": "Added (newest first)"
+        },
+        "add": {
+            "addplace": "Add a new place",
+            "address": "Address",
+            "addresspaceholder": "e.g. 123 Main Street",
+            "manualentry": "Manual entry",
+            "address-second": "Address (second line)",
+            "address-secondpaceholder": "e.g. Suite 200",
+            "city": "City",
+            "cityplaceholder": "e.g. Budapest",
+            "county": "State/Region/County",
+            "countyplaceholder": "e.g. Pest",
+            "postalcode": "Postal code",
+            "postalcodeplaceholder": "e.g. 1135",
+            "savemarker": "Save marker",
+            "cancelmarker": "Cancel marker",
+            "adjustmarker": "Adjust marker",
+            "mapfooter": "Click on the map to place a marker",
+            "price": "Price",
+            "pricepaceholder": "e.g. 200 HUF",
+            "comments": "Comments",
+            "commentspaceholder": "e.g. Only for customers",
+            "accessible": "Accessible",
+            "public": "Public"
+        },
+        "delete": "Delete place",
+        "accept": "Accept place",
+        "openmap": "Open in Google Maps"
     }
 }
