@@ -35,8 +35,8 @@
         "free": "Ingyenes",
         "accessible": "Akadálymentes",
         "notaccessible": "Nem akadálymentes",
-        "public": "Az illemhely típusa: Nyilvános",
-        "private": "Az illemhely típusa: Magán",
+        "public": "Közüzemi illemhely",
+        "private": "Magán üzemeltetésű illemhely",
         "norating": "Az illemhelyet még nem értékelték",
         "rating": "Az illemhely átlagos értékelése: ",
         "navigatemehere": "Vezess el ide!",
@@ -95,5 +95,13 @@
         "delete": "Hely törlése",
         "accept": "Hely elfogadása",
         "openmap": "Megnyitás Google Térképen"
-    }
+    },
+    "submit": "Küldés",
+    "cancel": "Mégse",
+    "delete": "Törlés",
+    "review": "Hely értékelése",
+    "reviews": "Értékelések",
+    "rating": "Értékelés",
+    "review-text": "Értékelés szövege",
+    "show-reviews": "Értékelések megtekintése"
 }

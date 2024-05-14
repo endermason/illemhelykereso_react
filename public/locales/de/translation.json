@@ -32,8 +32,8 @@
         "free": "Kostenlos",
         "accessible": "Barrierefrei",
         "notaccessible": "Nicht barrierefrei",
-        "public": "Öffentlich",
-        "private": "Privat",
+        "public": "Öffentliche Toilette",
+        "private": "Privat betriebene Toilette",
         "norating": "Noch keine Bewertung",
         "rating": "Durchschnittliche Bewertung: ",
         "navigatemehere": "Navigiere mich hierher",
@@ -92,5 +92,13 @@
         "delete": "Ort löschen",
         "accept": "Ort akzeptieren",
         "openmap": "Ort auf Google Maps öffnen"
-    }
+    },
+    "submit": "Absenden",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "review": "Ort bewerten",
+    "reviews": "Bewertungen",
+    "rating": "Bewertung",
+    "review-text": "Scrifftliche Bewertung",
+    "show-reviews": "Bewertungen anzeigen"
 }

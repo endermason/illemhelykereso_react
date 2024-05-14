@@ -19,7 +19,7 @@ function Navigationbar() {
   const { currentUser, logOut } = useContext(AuthContext);
   
   return (
-    <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary">
+    <Navbar bg="primary" data-bs-theme="light" collapseOnSelect expand="lg" className="bg-warning-subtle">
       <Container>
         <Navbar.Brand as={Link} to="/">{t('nav.main')}</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />

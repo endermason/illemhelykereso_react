@@ -24,11 +24,11 @@ export async function downloadPlaces() {
             let p = place;
             p.coordinates = [place.longitude, place.latitude];
 
-            if (place.rating === undefined) {
+            if (place.rating === undefined || Object.keys(place.rating).length === 0) {
                 p.rating_calculated = -1;  // Ha nincs értékelés, akkor -1 a rating
             } else {
                 const ratings = Object.keys(place.rating);
-                p.rating_calculated = ratings.reduce((acc, rating) => acc + place.rating[rating], 0) / ratings.length
+                p.rating_calculated = ratings.reduce((acc, rating) => acc + place.rating[rating].rating, 0) / ratings.length
             }
             acc.push(p);
             return acc;

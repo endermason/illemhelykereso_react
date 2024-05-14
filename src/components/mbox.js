@@ -14,7 +14,7 @@ import { useContext } from 'react';
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-const Mbox = ({ onClick, filter, setMe, route }) => {
+const Mbox = ({ onClick, filter, setMe, route, refresh }) => {
     const { currentUser } = useContext(AuthContext);
     
     const mapContainerRef = useRef(null);
@@ -35,7 +35,7 @@ const Mbox = ({ onClick, filter, setMe, route }) => {
 
         fetchPlaces();
 
-    }, []);
+    }, [refresh]);
 
     useEffect(() => {
         const newFiltered = original.reduce((acc, feature) => {

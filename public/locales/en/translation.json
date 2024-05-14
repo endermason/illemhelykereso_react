@@ -35,8 +35,8 @@
         "free": "Free",
         "accessible": "Accessible",
         "notaccessible": "Not accessible",
-        "public": "Public",
-        "private": "Private",
+        "public": "Communal restroom",
+        "private": "Privately operated restroom",
         "norating": "No rating yet for this place",
         "rating": "Average rating for this place: ",
         "navigatemehere": "Navigate me here",
@@ -95,5 +95,13 @@
         "delete": "Delete place",
         "accept": "Accept place",
         "openmap": "Open in Google Maps"
-    }
+    },
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "review": "Review place",
+    "reviews": "Reviews",
+    "rating": "Rating",
+    "review-text": "Review text",
+    "show-reviews": "Show reviews"
 }

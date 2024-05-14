@@ -7,6 +7,8 @@ import AuthContext from "../../contexts/logoutcontext";
 import { downloadPlaces } from '../../components/fbtojson';
 import Filters from "../../components/filters";
 import { useTranslation } from 'react-i18next';
+import Review from "../../components/review";
+import ShowReviews from "../../components/showreviews";
 
 export const useDays = () => {
   const { t } = useTranslation();
@@ -115,7 +117,7 @@ export function Places() {
                 place.address.toLowerCase() === (feature.properties.street + " " + feature.properties.address_number).toLowerCase()
         );
 
-        const addedTodayAlready = adminUser !== currentUser.uid && addedTodayCount >= 1;
+        const addedTodayAlready = adminUser !== currentUser.uid && addedTodayCount >= 5;
 
         if (existingPlace) {
             setErrorMessage("A hely már létezik vagy elfogadásra vár.");
@@ -256,8 +258,6 @@ export function Places() {
         setCurrentPage(pageNumber);
     }, [sortedPlaces]);
 
-    console.log(addedTodayCount)
-
 
     //Update Places on sort order change
     useEffect(() => {
@@ -268,12 +268,12 @@ export function Places() {
         <Container className="Places">
             <h1 style={{ marginBottom: "5vh" }}>{t('places.title')}</h1>
             <Row>
-                <Col xs={12} lg={4} className="mb-3 text-start" >
+                <Col xs={12} lg={5} className="mb-3 text-start" >
                     <Container fluid="xs">
                     <Filters setFilterFunction={setFilterFunction} />
                     </Container>
                 </Col>
-                <Col xs={12} lg={4} className="mb-3 text-center">
+                <Col xs={12} lg={2} className="mb-3 text-center">
                 {pageNumbers.length > 1 &&
                         <Pagination className="justify-content-center">
                             {pageNumbers
@@ -286,11 +286,11 @@ export function Places() {
                         </Pagination>
                     }
                 </Col>
-                <Col xs={12} lg={4} className="mb-3 text-end">
+                <Col xs={12} lg={5} className="mb-3 text-end">
                 <div>
                         <Dropdown onSelect={handleSortOrderChange}>
                             <Dropdown.Toggle id="order">
-                                {t(`places.sort.${sortOrder}`)} {/* use t("sort-order-place-asc") */}
+                                {t(`places.sort.${sortOrder}`)}
                             </Dropdown.Toggle>
                             <Dropdown.Menu>
                                 <Dropdown.Item eventKey="place-asc">{t('places.sort.places-asc')}</Dropdown.Item>
@@ -304,7 +304,7 @@ export function Places() {
                     </div>
                 </Col>
             </Row>
-            {currentUser && (addedTodayCount < 1 || adminUser === currentUser.uid) && <>
+            {currentUser && (addedTodayCount <= 5 || adminUser === currentUser.uid) && <>
                 {!showAddPlaceExpanded &&
                     <div
                         id="manual-entry-place"
@@ -457,23 +457,31 @@ export function Places() {
                             <Card.Title>{place.city}, {place.address}</Card.Title>
                             <Card.Subtitle style={{ marginBottom: "1rem" }}>{place.comments}</Card.Subtitle>
                             <Card.Text as="div">
-                                {place.public ? t('map.public') : t('map.private')}<br />    {/*A hely publikus vagy privát*/}
-                                    {place.opening_times.map((time, index) => {
+                                {place.public ? t('map.public') : t('map.private')}
+                                <br />
+                                <br />    {/*A hely publikus vagy privát*/}
+                                {t('map.openhours')}<br /> {/*A nyitvatartási idők*/}
+                                
+                                {place.opening_times.map((time, index) => {
 
-                                        return <>{`${days[index]}: ${time}`}<br /></>;    //A nyitvatartási idők megjelenítése listában
+                                    return <>{`${days[index]}: ${time}`}<br /></>;    //A nyitvatartási idők megjelenítése listában
 
-                                    })}
+                                })}
                                 <br />
                                 {
-                                    place.rating === undefined
+                                    place.rating_calculated === -1
                                         ? t('map.norating')
-                                        : <>{t('map.rating')} {(Object.values(place.rating).reduce((a, b) => a + b, 0) / Object.keys(place.rating).length).toFixed(2)}</> //Az értékelések átlaga 2 tizedesjegy pontossággal
+                                        : <>{t('map.rating')} {(place.rating_calculated).toFixed(2)}</> //Az értékelések átlaga 2 tizedesjegy pontossággal
                                 }
+                                <br />
+                                <br />
+                                {currentUser && <Review place={place} triggerUpdate={getPlaceList} />} {/*A hely értékelése*/}
+                                <ShowReviews place={place} triggerUpdate={getPlaceList} />
                             </Card.Text>
                             {currentUser && currentUser.uid === adminUser && (  //Csak az admin tudja törölni és elfogadni a helyeket
                                 <>
-                                <Button href={`https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`} target="_blank">{t('places.openmap')}</Button> {/*A hely megnyitása a Google Maps-en*/}
-                                    <Button onClick={() => deletePlace(place.id)}>{t('places.delete')}</Button>
+                                <Button variant="warning" href={`https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`} target="_blank">{t('places.openmap')}</Button> {/*A hely megnyitása a Google Maps-en*/}
+                                    <Button variant="danger" onClick={() => deletePlace(place.id)}>{t('places.delete')}</Button>
                                     {!place.accepted && <Button onClick={() => acceptPlace(place.id)} className="ms-2">{t('places.accept')}</Button>}  {/*Ha a hely nincs elfogadva, akkor megjelenik az elfogadás gomb*/}
 
                                 </>

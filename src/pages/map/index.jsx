@@ -9,6 +9,8 @@ import { useDays } from '../places';
 import Filters from '../../components/filters';
 import PlaceStatusAlert from "../../components/alert"
 import { useTranslation } from 'react-i18next';
+import Review from "../../components/review";
+import ShowReviews from "../../components/showreviews";
 
 
 export const Map = () => {
@@ -20,6 +22,9 @@ export const Map = () => {
     const [route, setRoute] = useState(null);
     const [instructions, setInstructions] = useState(null);
     const [distance, setDistance] = useState(null);
+
+    const [refresh, setRefresh] = useState(false);
+    const triggerRefresh = () => setRefresh(!refresh);
 
 
     const getRoute = async (end) => {
@@ -57,7 +62,7 @@ export const Map = () => {
                     setRoute(null);
                     setInstructions(null);
                     setDistance(null);
-                }} filter={filterFunction} setMe={setMe} route={route} /> {/* mbox.js script funkciója, megcsinálja a térképet és a markereket */}
+                }} filter={filterFunction} setMe={setMe} route={route} refresh={refresh} /> {/* mbox.js script funkciója, megcsinálja a térképet és a markereket */}
 
 
                 <Container style={{ zIndex: 5, backgroundColor: "white", position: "absolute", top: 0, left: 0, padding: '1em' }} className={selectedPlace ? 'extra-container info-container' : 'extra-container'}>
@@ -87,11 +92,13 @@ export const Map = () => {
                             <p>{selectedPlace.accessible ? t('map.accessible') : t('map.notaccessible')}</p>
                             <p>{selectedPlace.public ? t('map.public') : t('map.private')}</p>
                             <p>{selectedPlace.rating_calculated === -1 ? t('map.norating') : <>{t('map.rating')} {selectedPlace.rating_calculated.toFixed(2)}</>}</p>
+                            {currentUser && <Review place={selectedPlace} triggerUpdate={triggerRefresh} />} {/*A hely értékelése*/}
+                            <ShowReviews place={selectedPlace} /> {/*A hely értékelései*/}
                             {currentUser && me && // ha be van jelentkezve a felhasználó, akkor megjelenik a navigáció gomb
-                                <Button onClick={() => getRoute([selectedPlace.longitude, selectedPlace.latitude])} className='mb-3'>{t('map.navigatemehere')}</Button>
+                                <><br/><Button variant="success" onClick={() => getRoute([selectedPlace.longitude, selectedPlace.latitude])} className='mb-3'>{t('map.navigatemehere')}</Button></>
                             }
 
-                            {instructions && (
+                            {/* {instructions && (
                                 <div style={{ maxHeight: "25vh", overflow: "auto" }}>
                                     <ol>
                                         {instructions.map((instruction, index) => (
@@ -100,8 +107,8 @@ export const Map = () => {
                                     </ol>
                                 </div>
                             )}
-                            {distance && <p>{distance} m</p>}
-                            <br /><Button onClick={() => setSelectedPlace(null)} className='mb-3'>{t('map.close')}</Button>     {/* bezárás gomb */}
+                            {distance && <p>{distance} m</p>} */}
+                            <br /><Button variant="secondary" onClick={() => setSelectedPlace(null)} className='mb-3'>{t('map.close')}</Button>     {/* bezárás gomb */}
                             <span className="hr-sect filter-label">{t('map.filter')}</span> {/* szűrő címke */}
                         </Col>
                     </>}
