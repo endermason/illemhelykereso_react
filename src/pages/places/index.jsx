@@ -11,8 +11,8 @@ import Review from "../../components/review";
 import ShowReviews from "../../components/showreviews";
 
 export const useDays = () => {
-  const { t } = useTranslation();
-  return [t('days.monday'), t('days.tuesday'), t('days.wednesday'), t('days.thursday'), t('days.friday'), t('days.saturday'), t('days.sunday')];
+    const { t } = useTranslation();
+    return [t('days.monday'), t('days.tuesday'), t('days.wednesday'), t('days.thursday'), t('days.friday'), t('days.saturday'), t('days.sunday')];
 };
 const Orders = {
     PLACE_ASC: "place-asc",
@@ -176,6 +176,7 @@ export function Places() {
         setShowFormExpanded(false);
         setShowAddPlaceExpanded(false);
         setFeature(null);
+        setShowMinimap(false);
     }
 
     const [newPlaceOpenHours, setNewPlaceOpenHours] = useState([
@@ -262,7 +263,7 @@ export function Places() {
     //Update Places on sort order change
     useEffect(() => {
         handleSortOrderChange(sortOrder);
-    }, [placeList, handleSortOrderChange, sortOrder]); 
+    }, [placeList, handleSortOrderChange, sortOrder]);
 
     return (
         <Container className="Places">
@@ -270,11 +271,11 @@ export function Places() {
             <Row>
                 <Col xs={12} lg={5} className="mb-3 text-start" >
                     <Container fluid="xs">
-                    <Filters setFilterFunction={setFilterFunction} />
+                        <Filters setFilterFunction={setFilterFunction} />
                     </Container>
                 </Col>
                 <Col xs={12} lg={2} className="mb-3 text-center">
-                {pageNumbers.length > 1 &&
+                    {pageNumbers.length > 1 &&
                         <Pagination className="justify-content-center">
                             {pageNumbers
                                 .filter(num => num === 1 || num === pageNumbers.length || num === currentPage || num === currentPage - 1 || num === currentPage + 1)
@@ -287,7 +288,7 @@ export function Places() {
                     }
                 </Col>
                 <Col xs={12} lg={5} className="mb-3 text-end">
-                <div>
+                    <div>
                         <Dropdown onSelect={handleSortOrderChange}>
                             <Dropdown.Toggle id="order">
                                 {t(`places.sort.${sortOrder}`)}
@@ -353,26 +354,30 @@ export function Places() {
                             </div>
                         </Col>
                         <Col xs={12} lg={6} className="mb-3">
-                            <center>
-                                {/* Visual confirmation map */}
-                                <div
-                                    id="minimap-container"
-                                    className="h240 w360 relative mt18"
-                                    style={{ display: showFormExpanded ? 'block' : 'none' }}
-                                >
-                                    <AddressMinimap
-                                        canAdjustMarker={true}
-                                        satelliteToggle={true}
-                                        feature={feature}
-                                        show={showMinimap}
-                                        onSaveMarkerLocation={handleSaveMarkerLocation}
-                                        saveBtnText={t('places.add.savemarker')}
-                                        cancelBtnText={t('places.add.cancelmarker')}
-                                        adjustBtnText={t('places.add.adjustmarker')}
-                                        footer={t('places.add.mapfooter')}
-                                    />
-                                </div>
-                            </center>
+                            <div style={{ position: 'relative', display: showFormExpanded ? 'block' : 'none' }}>
+                                <center style={{ zIndex: 1, display: showFormExpanded ? 'block' : 'none' }}>
+                                    {/* Visual confirmation map */}
+                                    <div
+                                        id="minimap-container"
+                                        className="h240 w360 relative mt18"
+                                    >
+                                        <AddressMinimap
+                                            canAdjustMarker={true}
+                                            satelliteToggle={true}
+                                            feature={feature}
+                                            show={showMinimap}
+                                            onSaveMarkerLocation={handleSaveMarkerLocation}
+                                            saveBtnText={t('places.add.savemarker')}
+                                            cancelBtnText={t('places.add.cancelmarker')}
+                                            adjustBtnText={t('places.add.adjustmarker')}
+                                            footer={t('places.add.mapfooter')}
+                                        />
+                                    </div>
+                                </center>
+                            </div>
+                            <div style={{ position: 'absolute', zIndex: 2, display: showMinimap ? 'none' : 'block' }}>
+                                <h1>Meglepetés!</h1>
+                            </div>
                         </Col>
                         <Col xs={12} lg={6} className="mb-3">
                             <Form.Group controlId="price">
@@ -407,7 +412,7 @@ export function Places() {
                             </Form.Group>
                         </Col>
                         <Col xs={12} className="border-top mb-2 p-3">
-                            Nyitvatartás
+                            {t('map.openhours')}
                         </Col>
                         {days.map((day, index) => (<>
                             <Col xs={12} lg={4} className="mb-3 d-flex justify-content-center align-items-end">
@@ -415,7 +420,7 @@ export function Places() {
                             </Col>
                             <Col xs={6} lg={4} className="mb-3">
                                 <Form.Group controlId={`interval-from-${index}`}>
-                                    <Form.Control type="text" placeholder="-tól" value={newPlaceOpenHours[index].intervalFrom} onChange={(e) => {
+                                    <Form.Control type="text" placeholder={t('places.add.from')} value={newPlaceOpenHours[index].intervalFrom} onChange={(e) => {
                                         const newOpenHours = [...newPlaceOpenHours];
                                         newOpenHours[index].intervalFrom = e.target.value;
                                         setNewPlaceOpenHours(newOpenHours);
@@ -424,7 +429,7 @@ export function Places() {
                             </Col>
                             <Col xs={6} lg={4} className="mb-3">
                                 <Form.Group controlId={`interval-from-${index}`}>
-                                    <Form.Control type="text" placeholder="-ig" value={newPlaceOpenHours[index].intervalTo} onChange={(e) => {
+                                    <Form.Control type="text" placeholder={t('places.add.to')} value={newPlaceOpenHours[index].intervalTo} onChange={(e) => {
                                         const newOpenHours = [...newPlaceOpenHours];
                                         newOpenHours[index].intervalTo = e.target.value;
                                         setNewPlaceOpenHours(newOpenHours);
@@ -439,10 +444,10 @@ export function Places() {
                             <div className="mb-3 d-flex justify-content-center align-items-end">
                                 {errorMessage && <div>{errorMessage}</div>}
                                 <Button variant="primary" type="submit" className="me-2">
-                                    Hely hozzáadása
+                                    {t('places.add.submit')}
                                 </Button>
                                 <Button variant="secondary" type="button" className="ms-2" onClick={resetForm}>
-                                    Visszaállítás
+                                    {t('places.add.reset')}
                                 </Button>
                             </div>
                         }
@@ -461,7 +466,7 @@ export function Places() {
                                 <br />
                                 <br />    {/*A hely publikus vagy privát*/}
                                 {t('map.openhours')}<br /> {/*A nyitvatartási idők*/}
-                                
+
                                 {place.opening_times.map((time, index) => {
 
                                     return <>{`${days[index]}: ${time}`}<br /></>;    //A nyitvatartási idők megjelenítése listában
@@ -480,9 +485,9 @@ export function Places() {
                             </Card.Text>
                             {currentUser && currentUser.uid === adminUser && (  //Csak az admin tudja törölni és elfogadni a helyeket
                                 <>
-                                <Button variant="warning" href={`https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`} target="_blank">{t('places.openmap')}</Button> {/*A hely megnyitása a Google Maps-en*/}
+                                    <Button variant="warning" href={`https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`} target="_blank">{t('places.openmap')}</Button> {/*A hely megnyitása a Google Maps-en*/}
                                     <Button variant="danger" onClick={() => deletePlace(place.id)}>{t('places.delete')}</Button>
-                                    {!place.accepted && <Button onClick={() => acceptPlace(place.id)} className="ms-2">{t('places.accept')}</Button>}  {/*Ha a hely nincs elfogadva, akkor megjelenik az elfogadás gomb*/}
+                                    {!place.accepted && <Button variant="success" onClick={() => acceptPlace(place.id)} className="ms-2">{t('places.accept')}</Button>}  {/*Ha a hely nincs elfogadva, akkor megjelenik az elfogadás gomb*/}
 
                                 </>
                             )}

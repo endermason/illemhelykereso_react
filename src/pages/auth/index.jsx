@@ -27,11 +27,11 @@ export const Auth = () => {
             console.error(err);
             // Add Hungarian error handling
             if (err.code === "auth/user-not-found") {
-                setError(t('login.usernotfound'));
+                setError(t('error.usernotfound'));
             } else if (err.code === "auth/wrong-password") {
-                setError(t('login.wrongpassword'));
+                setError(t('error.wrongpassword'));
             } else {
-                setError(t('login.error'));
+                setError(t('error.error'));
             }
         }
     };
@@ -50,7 +50,7 @@ export const Auth = () => {
         } catch (err) {
             console.error(err);
             // Consider adding specific error handling for Google sign-in if necessary
-            setError(t('login.googleerror'));
+            setError(t('error.googleerror'));
         }
     };
 

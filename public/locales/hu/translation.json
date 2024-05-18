@@ -8,11 +8,13 @@
         "register": "Regisztráció",
         "logout": "Kijelentkezés"
     },
+    "register": {
+        "register": "Regisztráció",
+        "email": "E-mail cím",
+        "password": "Jelszó",
+        "confirmpassword": "Jelszó megerősítése"
+    },
     "login": {
-        "usernotfound": "Nincs ilyen felhasználó!",
-        "wrongpassword": "Hibás e-mail cím vagy jelszó!",
-        "error": "Hiba történt, próbáld újra később!",
-        "googleerror": "Hiba történt a Google bejelentkezés során!",
         "login": "Bejelentkezés",
         "email": "E-mail cím",
         "password": "Jelszó",
@@ -76,21 +78,25 @@
             "address-second": "Cím 2. sora",
             "address-secondpaceholder": "pl. A élpület, 2. emelet, 3. ajtó",
             "city": "Település",
-            "cityplaceholder": "pl. Győr",
+            "citypaceholder": "pl. Győr",
             "county": "Állam/Régió/Vármegye",
-            "countyplaceholder": "pl. Győr-Moson-Sopron",
+            "countypaceholder": "pl. Győr-Moson-Sopron",
             "postalcode": "Irányítószám",
-            "postalcodeplaceholder": "pl. 9026",
+            "postalcodepaceholder": "pl. 9026",
             "savemarker": "Jelölő mentése",
             "cancelmarker": "Mégse",
             "adjustmarker": "Jelölő áthelyezése",
             "mapfooter": "Állítsa be a jelölőt a térképen, ha nem pontosan egyezik a helyszínnel. Ez segít javítani az cím adatait.",
             "price": "Ár",
-            "pricepaceholder": "pl. 200 Ft",
+            "pricepaceholder": "pl. 200 (Ft)",
             "comments": "Megjegyzés",
             "commentspaceholder": "pl. A 3. emeleten, a lépcsőnél balra",
             "accessible": "Akadálymentes",
-            "public": "Nyilvános"
+            "public": "Nyilvános",
+            "submit": "Hely hozzáadása",
+            "reset": "Visszaállítás",
+            "from": "-tól",
+            "to": "-ig"
         },
         "delete": "Hely törlése",
         "accept": "Hely elfogadása",
@@ -103,5 +109,19 @@
     "reviews": "Értékelések",
     "rating": "Értékelés",
     "review-text": "Értékelés szövege",
-    "show-reviews": "Értékelések megtekintése"
+    "show-reviews": "Értékelések megtekintése",
+    "error":{
+        "usernotfound": "Nincs ilyen felhasználó!",
+        "wrongpassword": "Hibás e-mail cím vagy jelszó!",
+        "error": "Hiba történt, próbáld újra később!",
+        "googleerror": "Hiba történt a Google bejelentkezés során!",
+        "characters":"A jelszónak 8-20 karakter hosszúnak kell lennie.",
+        "lovercase":"A jelszónak tartalmaznia kell legalább egy kisbetűt.",
+        "uppercase":"A jelszónak tartalmaznia kell legalább egy nagybetűt.",
+        "number":"A jelszónak tartalmaznia kell legalább egy számot.",
+        "special":"A jelszónak tartalmaznia kell legalább egy speciális karaktert.",
+        "samepassword":"A két jelszó nem egyezik meg!",
+        "alreadyinuse":"Ez az e-mail cím már használatban van!",
+        "invalidemail":"Érvénytelen e-mail cím!"
+    }
 }

@@ -106,7 +106,7 @@ const ShowReviewsModalContent = ({ place, triggerUpdate }) => {
                 {sortedReviews.map((review, index) => (
                     <div key={index} className="mb-3" style={{ borderRadius: "2rem", backgroundColor: "aliceblue" }}>
                         <div className="mb-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            {adminUser === currentUser.uid ? <p1>{review.id}</p1> : ""}
+                            {currentUser && adminUser === currentUser.uid ? <p1>{review.id}</p1> : ""}
                             <p3>{review.added.toDate().toLocaleDateString()}</p3>
                             <p1>{t('rating')}:</p1>
                             <ReactStars

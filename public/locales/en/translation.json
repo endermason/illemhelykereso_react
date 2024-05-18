@@ -8,11 +8,13 @@
         "register": "Register",
         "logout": "Logout"
     },
+    "register": {
+        "register": "Register",
+        "email": "Email",
+        "password": "Password",
+        "confirmpassword": "Confirm password"
+    },
     "login": {
-        "usernotfound": "User not found!",
-        "wrongpassword": "Wrong email or password!",
-        "error": "An error occurred, please try again later.",
-        "googleerror": "An error occurred while logging in with Google, please try again later.",
         "login": "Login",
         "email": "Email",
         "password": "Password",
@@ -76,11 +78,11 @@
             "address-second": "Address (second line)",
             "address-secondpaceholder": "e.g. Suite 200",
             "city": "City",
-            "cityplaceholder": "e.g. Budapest",
+            "citypaceholder": "e.g. Budapest",
             "county": "State/Region/County",
-            "countyplaceholder": "e.g. Pest",
+            "countypaceholder": "e.g. Pest",
             "postalcode": "Postal code",
-            "postalcodeplaceholder": "e.g. 1135",
+            "postalcodepaceholder": "e.g. 1135",
             "savemarker": "Save marker",
             "cancelmarker": "Cancel marker",
             "adjustmarker": "Adjust marker",
@@ -90,7 +92,11 @@
             "comments": "Comments",
             "commentspaceholder": "e.g. Only for customers",
             "accessible": "Accessible",
-            "public": "Public"
+            "public": "Public",
+            "submit": "Add place",
+            "reset": "Reset",
+            "from": "from",
+            "to": "to"
         },
         "delete": "Delete place",
         "accept": "Accept place",
@@ -103,5 +109,19 @@
     "reviews": "Reviews",
     "rating": "Rating",
     "review-text": "Review text",
-    "show-reviews": "Show reviews"
+    "show-reviews": "Show reviews",
+    "error":{
+        "usernotfound": "User not found",
+        "wrongpassword": "Incorrect password",
+        "error": "An error occurred. Please try again later.",
+        "googleerror": "Google login error. Please try again later.",
+        "characters": "The password must be 8-20 characters long.",
+        "lovercase": "The password must contain at least one lowercase letter.",
+        "uppercase": "The password must contain at least one uppercase letter.",
+        "number": "The password must contain at least one number.",
+        "special": "The password must contain at least one special character.",
+        "samepassword": "The passwords do not match.",
+        "alreadyinuse": "This email address is already in use.",
+        "invalidemail": "Invalid email address."
+    }
 }
