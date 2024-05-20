@@ -9,7 +9,7 @@ const PlaceStatusAlert = ({ selectedPlace }) => {
 
     useEffect(() => {
         if (selectedPlace) {
-            let now = new Date();
+            let now = new Date(); 
             let day = (((now.getDay() - 1) + 7) % 7);
             let opening = selectedPlace.opening_times[day];
             let [openingTimeStr, closingTimeStr] = opening.split('-');
@@ -28,21 +28,21 @@ const PlaceStatusAlert = ({ selectedPlace }) => {
             if (now < openingTime) {
                 if (openingTime - now <= 30 * 60 * 1000) {
                     setAlertVariant('info');
-                    setAlertMessage(t('alert.openswithin30'));
+                    setAlertMessage("⌛ "+t('alert.openswithin30')+" ⌛");
                 } else {
                     setAlertVariant('danger');
-                    setAlertMessage(t('alert.closed'));
+                    setAlertMessage("⛔ "+t('alert.closed')+" ⛔");
                 }
             } else if (now > closingTime) {
                 setAlertVariant('danger');
-                setAlertMessage(t('alert.closed'));
+                setAlertMessage("⛔ "+t('alert.closed')+" ⛔");
             } else {
                 if (closingTime - now <= 30 * 60 * 1000) {
                     setAlertVariant('warning');
-                    setAlertMessage(t('alert.closeswithin30'));
+                    setAlertMessage("⚠️ "+t('alert.closeswithin30')+" ⚠️");
                 } else {
                     setAlertVariant('success');
-                    setAlertMessage(t('alert.open'));
+                    setAlertMessage("👌 "+t('alert.open')+" 👌");
                 }
             }
         }

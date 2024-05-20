@@ -2,12 +2,11 @@ import { sendPasswordResetEmail } from 'firebase/auth';
 import { useState } from 'react';
 import { auth } from '../../config/firebase';
 import { useNavigate } from 'react-router-dom';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
+import { Button, Form, Alert } from 'react-bootstrap';
 
 
-function ForgotPassword() {
-    const navigate = useNavigate();         //TODO TODO TODO TODO TODO TODO TODO CHIHOHOO TODO TODO TODO TODO TODO TODO TODO
+function ForgotPassword() {                     //TODO TODO TODO TODO TODO TODO TODO CHIHOHOO TODO TODO TODO TODO TODO TODO TODO
+    const navigate = useNavigate();        
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
@@ -43,8 +42,8 @@ function ForgotPassword() {
     return (
         <div>
             <h1>Elfelejtett jelszó</h1>
-            {success && <div className="success-message" style={{ width: "auto", border: "5px solid green" }}>{success}</div>}
-            {error && <div className="error-message" style={{ width: "auto", border: "5px solid red", fontSize: "1vh" }}>{error}</div>}
+            {success && <Alert variant="success" className="success-message">{success}</Alert>}
+            {error && <Alert variant="danger">{error}</Alert>}
             <Form className="password-reset" style={{maxWidth: "50vw", textAlign: "center", margin: "auto"}} onSubmit={handleSubmit}>
             <Form.Group controlId="email">
                 <Form.Label>E-mail cím</Form.Label>

@@ -1,7 +1,7 @@
-import { useEffect, useState, useCallback, useContext } from "react";
+import { useEffect, useState, useCallback, useContext, Fragment, useRef } from "react";
 import { db, adminUser } from "../../config/firebase";
 import { collection, addDoc, serverTimestamp, deleteDoc, doc, updateDoc } from "firebase/firestore";
-import { Button, Card, Container, Row, Col, Form, Dropdown, Pagination } from "react-bootstrap";
+import { Button, Card, Container, Row, Col, Form, Dropdown, Pagination, Tabs, Tab } from "react-bootstrap";
 import { AddressAutofill, AddressMinimap, useConfirmAddress, config } from '@mapbox/search-js-react';
 import AuthContext from "../../contexts/logoutcontext";
 import { downloadPlaces } from '../../components/fbtojson';
@@ -9,6 +9,7 @@ import Filters from "../../components/filters";
 import { useTranslation } from 'react-i18next';
 import Review from "../../components/review";
 import ShowReviews from "../../components/showreviews";
+import { Map as MapBoxMap, Marker } from 'react-map-gl';
 
 export const useDays = () => {
     const { t } = useTranslation();
@@ -48,6 +49,9 @@ export function Places() {
     const [updatedPlaceAccepted, setUpdatedPlaceAccepted] = useState(false);
 
     const placeCollectionRef = collection(db, "places");
+
+
+    const [key, setKey] = useState('place');
 
     const getPlaceList = async () => {
         const data = await downloadPlaces();
@@ -111,11 +115,20 @@ export function Places() {
 
     const onSubmitPlace = async (e) => {
         e.preventDefault();
-        const existingPlace = placeList.find(
-            (place) =>
-                place.city.toLowerCase() === feature.properties.place.toLowerCase() &&
-                place.address.toLowerCase() === (feature.properties.street + " " + feature.properties.address_number).toLowerCase()
-        );
+        let existingPlace;
+        if (key === "place") {
+            existingPlace = placeList.find(
+                (place) =>
+                    place.city.toLowerCase() === feature.properties.place.toLowerCase() &&
+                    place.address.toLowerCase() === (feature.properties.address_line1 + (feature.properties.address_line2 ? " " + feature.properties.address_line2 : "")).toLowerCase()
+            );
+        } else {
+            existingPlace = placeList.find(
+                (place) =>
+                    place.city.toLowerCase() === manualAddress.place.toLowerCase() &&
+                    place.address.toLowerCase() === (manualAddress.address_line1 + (manualAddress.address_line2 ? " " + manualAddress.address_line2 : "")).toLowerCase()
+            );
+        }
 
         const addedTodayAlready = adminUser !== currentUser.uid && addedTodayCount >= 5;
 
@@ -126,11 +139,13 @@ export function Places() {
         } else {
             setErrorMessage(null);
             try {
+                console.log(key);
+                if (key === "place") {
                 await addDoc(placeCollectionRef,
                     {
                         country: feature.properties.country,
                         city: feature.properties.place,
-                        address: feature.properties.street + " " + feature.properties.address_number,
+                        address: feature.properties.address_line1 + (feature.properties.address_line2 ? " " + feature.properties.address_line2 : ""),
                         price: Number(newPlacePrice),
                         comments: newPlaceComments,
                         accessible: newPlaceAccessible,
@@ -141,7 +156,27 @@ export function Places() {
                         public: newPlacePublic,
                         added: serverTimestamp(),
                         added_by: currentUser.uid,
+
                     });
+                } else {
+                    await addDoc(placeCollectionRef,
+                        {
+                            country: manualAddress.country,
+                            city: manualAddress.place,
+                            address: manualAddress.address_line1 + (manualAddress.address_line2 ? " " + manualAddress.address_line2 : ""),
+                            price: Number(newPlacePrice),
+                            comments: newPlaceComments,
+                            accessible: newPlaceAccessible,
+                            accepted: newPlaceAccepted || currentUser.uid === adminUser,
+                            latitude: manualCoordinates.latitude,
+                            longitude: manualCoordinates.longitude,
+                            opening_times: newPlaceOpenHours.map((day) => `${day.intervalFrom}-${day.intervalTo}`),
+                            public: newPlacePublic,
+                            added: serverTimestamp(),
+                            added_by: currentUser.uid,
+                        });
+                    }
+
 
                 getPlaceList(); // A lista frissítése
 
@@ -177,6 +212,18 @@ export function Places() {
         setShowAddPlaceExpanded(false);
         setFeature(null);
         setShowMinimap(false);
+        setManualAddress({
+            address_line1: "",
+            address_line2: "",
+            place: "",
+            county: "",
+            postcode: "",
+            country: "",
+        });
+        setManualCoordinates({
+            latitude: null,
+            longitude: null,
+        });
     }
 
     const [newPlaceOpenHours, setNewPlaceOpenHours] = useState([
@@ -265,6 +312,58 @@ export function Places() {
         handleSortOrderChange(sortOrder);
     }, [placeList, handleSortOrderChange, sortOrder]);
 
+    
+    const mapRef = useRef();
+    const [manualAddress, setManualAddress] = useState({
+        address_line1: "",
+        address_line2: "",
+        place: "",
+        county: "",
+        postcode: "",
+        country: "",
+    });
+    const [manualCoordinates, setManualCoordinates] = useState({
+        latitude: null,
+        longitude: null,
+    });
+    console.log(manualAddress);
+
+    const getAddress = async (longitude, latitude) => {
+        const query = await fetch(
+            `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${longitude}&latitude=${latitude}&types=address,street&access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`,
+            { method: 'GET' }
+        );
+        const json = await query.json();
+        console.log(json);
+
+        if (json.features.length > 0) {
+            const addressFeature = json.features.find((feature) => feature.properties.feature_type === "address");
+            const feature = addressFeature || json.features.find((feature) => feature.properties.feature_type === "street");
+
+            const context = feature.properties.context;
+
+            const country = context.country.name;
+            const county = context.region.name;
+            const place = context.place.name;
+            const street = feature.properties.name;
+            const postcode = context.postcode.name;
+
+            setManualAddress({
+                address_line1: street,
+                address_line2: "",
+                place: place,
+                county: county,
+                postcode: postcode,
+                country: country,
+            });
+        }
+    };
+    useEffect(() => {
+        if (manualCoordinates.latitude && manualCoordinates.longitude) {
+            getAddress(manualCoordinates.longitude, manualCoordinates.latitude);
+        }
+    }, [manualCoordinates]);
+
     return (
         <Container className="Places">
             <h1 style={{ marginBottom: "5vh" }}>{t('places.title')}</h1>
@@ -315,70 +414,170 @@ export function Places() {
                         {t('places.add.addplace')}
                     </div>
                 }
-                <Form ref={formRef} onSubmit={onSubmitPlace}>
-                    <Row style={{ display: showAddPlaceExpanded ? 'flex' : 'none' }}>
-                        <Col xs={12} lg={6} className="mb-3">
-                            <Form.Group controlId="address-first">
-                                <Form.Label>{t('places.add.address')}</Form.Label>
-                                <AddressAutofill accessToken={process.env.REACT_APP_MAPBOX_ACCESS_TOKEN} onRetrieve={handleRetrieve}>
-                                    <Form.Control required type="text" placeholder={t('places.add.addresspaceholder')} name="address-first" autoComplete="address-line1" id="mapbox-autofill" />
-                                </AddressAutofill>
-                            </Form.Group>
-                            {!showFormExpanded &&
-                                <Button
-                                    variant="secondary"
-                                    id="manual-entry"
-                                    className="mb-3 mt-3"
-                                    onClick={() => setShowFormExpanded(true)}
-                                >
-                                    {t('places.add.manualentry')}
-                                </Button>
-                            }
-                            <div className="secondary-inputs" style={{ display: showFormExpanded ? 'block' : 'none' }}>
-                                <Form.Group controlId="address-second">
-                                    <Form.Label>{t('places.add.address-second')}</Form.Label>
-                                    <Form.Control type="text" placeholder={t('places.add.address-secondpaceholder')} name="address-second" autoComplete="address-line2" />
-                                </Form.Group>
-                                <Form.Group controlId="city">
-                                    <Form.Label>{t('places.add.city')}</Form.Label>
-                                    <Form.Control type="text" placeholder={t('places.add.citypaceholder')} name="city" autoComplete="address-level2" />
-                                </Form.Group>
-                                <Form.Group controlId="state">
-                                    <Form.Label>{t('places.add.county')}</Form.Label>
-                                    <Form.Control type="text" placeholder={t('places.add.countypaceholder')} name="state" autoComplete="address-level1" />
-                                </Form.Group>
-                                <Form.Group controlId="zip">
-                                    <Form.Label>{t('places.add.postalcode')}</Form.Label>
-                                    <Form.Control type="text" placeholder={t('places.add.postalcodepaceholder')} name="zip" autoComplete="postal-code" />
-                                </Form.Group>
-                            </div>
-                        </Col>
-                        <Col xs={12} lg={6} className="mb-3">
-                            <div style={{ position: 'relative', display: showFormExpanded ? 'block' : 'none' }}>
-                                <center style={{ zIndex: 1, display: showFormExpanded ? 'block' : 'none' }}>
-                                    {/* Visual confirmation map */}
-                                    <div
-                                        id="minimap-container"
-                                        className="h240 w360 relative mt18"
-                                    >
-                                        <AddressMinimap
-                                            canAdjustMarker={true}
-                                            satelliteToggle={true}
-                                            feature={feature}
-                                            show={showMinimap}
-                                            onSaveMarkerLocation={handleSaveMarkerLocation}
-                                            saveBtnText={t('places.add.savemarker')}
-                                            cancelBtnText={t('places.add.cancelmarker')}
-                                            adjustBtnText={t('places.add.adjustmarker')}
-                                            footer={t('places.add.mapfooter')}
-                                        />
+                <Form ref={formRef} onSubmit={onSubmitPlace} style={{ display: showAddPlaceExpanded ? 'block' : 'none' }}>
+                    <Tabs activeKey={key} onSelect={(e) => setKey(e)} id="place-tab" className="mb-3" fill justify style={{ paddingRight: "0px" }}>
+                        <Tab eventKey="place" title={"Gépi"}>
+                            <Row>
+                                <Col xs={12} lg={6} className="mb-3">
+                                    <Form.Group>
+                                        <Form.Label>{t('places.add.address')}</Form.Label>
+                                        <AddressAutofill accessToken={process.env.REACT_APP_MAPBOX_ACCESS_TOKEN} onRetrieve={handleRetrieve}>
+                                            <Form.Control type="text" placeholder={t('places.add.addresspaceholder')} name="address-first" autoComplete="address-line1" id="mapbox-autofill" onChange={(e) => {
+                                                if (feature) {
+                                                    //set value to feauture
+                                                    setFeature((prev) => ({
+                                                        ...prev,
+                                                        properties: {
+                                                            ...prev.properties,
+                                                            address_line1: e.target.value
+                                                        }
+                                                    }));
+                                                }
+                                            }} />
+                                        </AddressAutofill>
+                                    </Form.Group>
+                                    {!showFormExpanded &&
+                                        <Button
+                                            variant="secondary"
+                                            id="manual-entry"
+                                            className="mb-3 mt-3"
+                                            onClick={() => setShowFormExpanded(true)}
+                                        >
+                                            {t('places.add.manualentry')}
+                                        </Button>
+                                    }
+                                    <div className="secondary-inputs" style={{ display: showFormExpanded ? 'block' : 'none' }}>
+                                        <Form.Group controlId="address-second">
+                                            <Form.Label>{t('places.add.address-second')}</Form.Label>
+                                            <Form.Control type="text" placeholder={t('places.add.address-secondpaceholder')} name="address-second" autoComplete="address-line2" onChange={(e) => {
+                                                if (feature) {
+                                                    //set value to feauture
+                                                    setFeature((prev) => ({
+                                                        ...prev,
+                                                        properties: {
+                                                            ...prev.properties,
+                                                            address_line2: e.target.value
+                                                        }
+                                                    }));
+                                                }
+                                            }} />
+                                        </Form.Group>
+                                        <Form.Group controlId="city">
+                                            <Form.Label>{t('places.add.city')}</Form.Label>
+                                            <Form.Control type="text" placeholder={t('places.add.citypaceholder')} name="city" autoComplete="address-level2" onChange={(e) => {
+                                                if (feature) {
+                                                    //set value to feauture
+                                                    setFeature((prev) => ({
+                                                        ...prev,
+                                                        properties: {
+                                                            ...prev.properties,
+                                                            place: e.target.value
+                                                        }
+                                                    }));
+                                                }
+                                            }} />
+                                        </Form.Group>
+                                        <Form.Group controlId="state">
+                                            <Form.Label>{t('places.add.county')}</Form.Label>
+                                            <Form.Control type="text" placeholder={t('places.add.countypaceholder')} name="state" autoComplete="address-level1" />
+                                        </Form.Group>
+                                        <Form.Group controlId="zip">
+                                            <Form.Label>{t('places.add.postalcode')}</Form.Label>
+                                            <Form.Control type="text" placeholder={t('places.add.postalcodepaceholder')} name="zip" autoComplete="postal-code" />
+                                        </Form.Group>
                                     </div>
-                                </center>
-                            </div>
-                            <div style={{ position: 'absolute', zIndex: 2, display: showMinimap ? 'none' : 'block' }}>
-                                <h1>Meglepetés!</h1>
-                            </div>
-                        </Col>
+                                </Col>
+                                <Col xs={12} lg={6} className="mb-3">
+                                    <div style={{ position: 'relative', display: showFormExpanded ? 'block' : 'none' }}>
+                                        <center style={{ zIndex: 1, display: showFormExpanded ? 'block' : 'none' }}>
+                                            {/* Visual confirmation map */}
+                                            <div
+                                                id="minimap-container"
+                                                className="h240 w360 relative mt18"
+                                            >
+                                                <AddressMinimap
+                                                    canAdjustMarker={true}
+                                                    satelliteToggle={true}
+                                                    feature={feature}
+                                                    show={showMinimap}
+                                                    onSaveMarkerLocation={handleSaveMarkerLocation}
+                                                    saveBtnText={t('places.add.savemarker')}
+                                                    cancelBtnText={t('places.add.cancelmarker')}
+                                                    adjustBtnText={t('places.add.adjustmarker')}
+                                                    footer={t('places.add.mapfooter')}
+                                                />
+                                            </div>
+                                        </center>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </Tab>
+                        <Tab eventKey="manual" title={"Kézi"}>
+                            <Row>
+                                <Col xs={12} lg={6} className="mb-3">
+                                    <Form.Group>
+                                        <Form.Label>{t('places.add.address')}</Form.Label>
+                                        <Form.Control required type="text" placeholder={t('places.add.addresspaceholder')} name="address-first" value={manualAddress.address_line1} onChange={(e) => { setManualAddress({ ...manualAddress, address_line1: e.target.value }) }} />
+                                    </Form.Group>
+                                    <Form.Group controlId="address-second">
+                                        <Form.Label>{t('places.add.address-second')}</Form.Label>
+                                        <Form.Control type="text" placeholder={t('places.add.address-secondpaceholder')} name="address-second" value={manualAddress.address_line2} onChange={(e) => { setManualAddress({ ...manualAddress, address_line2: e.target.value }) }} />
+                                    </Form.Group>
+                                    <Form.Group controlId="city">
+                                        <Form.Label>{t('places.add.city')}</Form.Label>
+                                        <Form.Control type="text" placeholder={t('places.add.citypaceholder')} name="city" value={manualAddress.place} onChange={(e) => { setManualAddress({ ...manualAddress, place: e.target.value }) }} />
+                                    </Form.Group>
+                                    <Form.Group controlId="state">
+                                        <Form.Label>{t('places.add.county')}</Form.Label>
+                                        <Form.Control type="text" placeholder={t('places.add.countypaceholder')} name="state" value={manualAddress.county} onChange={(e) => { setManualAddress({ ...manualAddress, county: e.target.value }) }} />
+                                    </Form.Group>
+                                    <Form.Group controlId="zip">
+                                        <Form.Label>{t('places.add.postalcode')}</Form.Label>
+                                        <Form.Control type="text" placeholder={t('places.add.postalcodepaceholder')} name="zip" value={manualAddress.postcode} onChange={(e) => { setManualAddress({ ...manualAddress, postcode: e.target.value }) }} />
+                                    </Form.Group>
+                                </Col>
+                                <Col xs={12} lg={6} className="mb-3">
+                                    <div style={{ position: 'relative'}}>
+                                        <center style={{ zIndex: 1 }}>
+                                            {/* Visual confirmation map */}
+                                            <div
+                                                id="minimap-container"
+                                                className="relative mt18"
+                                            >
+                                                <MapBoxMap
+                                                    ref={mapRef}
+                                                    mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}
+                                                    mapStyle="mapbox://styles/mapbox/streets-v11"
+                                                    style={{ width: "100%", aspectRatio: "2" }}
+                                                    initialViewState={{
+                                                        longitude: 19.504001543678186,
+                                                        latitude: 47.18010736034033,
+                                                        zoom: 7,
+                                                    }}
+                                                    onClick={(e) => {
+                                                        setManualCoordinates({
+                                                            latitude: e.lngLat.lat,
+                                                            longitude: e.lngLat.lng
+                                                        });
+                                                    }}
+                                                    >
+                                                    {manualCoordinates.latitude && manualCoordinates.longitude && <Marker latitude={manualCoordinates.latitude} longitude={manualCoordinates.longitude} />}
+                                                </MapBoxMap>
+                                                <p>
+                                                    {manualCoordinates.latitude}
+                                                    <br />
+                                                    {manualCoordinates.longitude}
+                                                </p>
+                                            </div>
+                                        </center>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </Tab>
+                    </Tabs>
+                    <hr/>
+                        
+                    <Row>
                         <Col xs={12} lg={6} className="mb-3">
                             <Form.Group controlId="price">
                                 <Form.Label>{t('places.add.price')}</Form.Label>
@@ -411,36 +610,40 @@ export function Places() {
                                 />
                             </Form.Group>
                         </Col>
-                        <Col xs={12} className="border-top mb-2 p-3">
+                        <hr/>
+                        <Col xs={12} className="mb-2 p-3">
                             {t('map.openhours')}
                         </Col>
-                        {days.map((day, index) => (<>
-                            <Col xs={12} lg={4} className="mb-3 d-flex justify-content-center align-items-end">
+                        {days.map((day, index) => (
+                            <Fragment key={index}>
+                                <Col xs={12} lg={4} className="mb-3 d-flex justify-content-center align-items-end">
                                 {day}
-                            </Col>
-                            <Col xs={6} lg={4} className="mb-3">
+                                </Col>
+                                <Col xs={6} lg={4} className="mb-3">
                                 <Form.Group controlId={`interval-from-${index}`}>
                                     <Form.Control type="text" placeholder={t('places.add.from')} value={newPlaceOpenHours[index].intervalFrom} onChange={(e) => {
-                                        const newOpenHours = [...newPlaceOpenHours];
-                                        newOpenHours[index].intervalFrom = e.target.value;
-                                        setNewPlaceOpenHours(newOpenHours);
+                                    const newOpenHours = [...newPlaceOpenHours];
+                                    newOpenHours[index].intervalFrom = e.target.value;
+                                    setNewPlaceOpenHours(newOpenHours);
                                     }} />
                                 </Form.Group>
-                            </Col>
-                            <Col xs={6} lg={4} className="mb-3">
-                                <Form.Group controlId={`interval-from-${index}`}>
+                                </Col>
+                                <Col xs={6} lg={4} className="mb-3">
+                                <Form.Group controlId={`interval-to-${index}`}>
                                     <Form.Control type="text" placeholder={t('places.add.to')} value={newPlaceOpenHours[index].intervalTo} onChange={(e) => {
-                                        const newOpenHours = [...newPlaceOpenHours];
-                                        newOpenHours[index].intervalTo = e.target.value;
-                                        setNewPlaceOpenHours(newOpenHours);
+                                    const newOpenHours = [...newPlaceOpenHours];
+                                    newOpenHours[index].intervalTo = e.target.value;
+                                    setNewPlaceOpenHours(newOpenHours);
                                     }} />
                                 </Form.Group>
-                            </Col>
-                        </>))}
-                        <Col xs={12} className="border-bottom mt-2 mb-3" />
+                                </Col>
+                            </Fragment>
+                            ))}
+                        <Col xs={12} className="mt-2 mb-3" />
+                        <hr/>
 
                         {/* Form buttons */}
-                        {showFormExpanded &&
+                        {(showFormExpanded || (key === "manual" && manualCoordinates.latitude !== null && manualCoordinates.longitude !== null)) &&
                             <div className="mb-3 d-flex justify-content-center align-items-end">
                                 {errorMessage && <div>{errorMessage}</div>}
                                 <Button variant="primary" type="submit" className="me-2">
@@ -456,44 +659,40 @@ export function Places() {
             </>}
 
             {actualPlaces.map((place) =>
-                <div key={place.id} style={{ marginBottom: "3rem" }}>
-                    <Card border="secondary" style={{ backgroundColor: place.accepted ? "lightgreen" : "salmon", borderRadius: "2rem" }}>
-                        <Card.Body>
-                            <Card.Title>{place.city}, {place.address}</Card.Title>
-                            <Card.Subtitle style={{ marginBottom: "1rem" }}>{place.comments}</Card.Subtitle>
-                            <Card.Text as="div">
-                                {place.public ? t('map.public') : t('map.private')}
-                                <br />
-                                <br />    {/*A hely publikus vagy privát*/}
-                                {t('map.openhours')}<br /> {/*A nyitvatartási idők*/}
+                <Card key={place.id} border="secondary" style={{ marginBottom: "3rem", backgroundColor: place.accepted ? "lightgreen" : "salmon", borderRadius: "2rem" }}>
+                    <Card.Body>
+                        <Card.Title>{place.city}, {place.address}</Card.Title>
+                        <Card.Subtitle style={{ marginBottom: "1rem" }}>{place.comments}</Card.Subtitle>
+                        <Card.Text as="div">
+                            {place.public ? t('map.public') : t('map.private')}
+                            <br />
+                            <br />    {/*A hely publikus vagy privát*/}
+                            {t('map.openhours')}<br /> {/*A nyitvatartási idők*/}
 
-                                {place.opening_times.map((time, index) => {
+                            {place.opening_times.map((time, index) => {
+                                return <Fragment key={index}>{`${days[index]}: ${time}`}<br /></Fragment>;    //A nyitvatartási idők megjelenítése listában
+                            })}
+                            <br />
+                            {
+                                place.rating_calculated === -1
+                                    ? t('map.norating')
+                                    : <>{t('map.rating')} {(place.rating_calculated).toFixed(2)}</> //Az értékelések átlaga 2 tizedesjegy pontossággal
+                            }
+                            <br />
+                            <br />
+                            {currentUser && <Review place={place} triggerUpdate={getPlaceList} />} {/*A hely értékelése*/}
+                            <ShowReviews place={place} triggerUpdate={getPlaceList} />
+                        </Card.Text>
+                        {currentUser && currentUser.uid === adminUser && (  //Csak az admin tudja törölni és elfogadni a helyeket
+                            <>
+                                <Button variant="warning" href={`https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`} target="_blank">{t('places.openmap')}</Button> {/*A hely megnyitása a Google Maps-en*/}
+                                <Button variant="danger" onClick={() => deletePlace(place.id)}>{t('places.delete')}</Button>
+                                {!place.accepted && <Button variant="success" onClick={() => acceptPlace(place.id)} className="ms-2">{t('places.accept')}</Button>}  {/*Ha a hely nincs elfogadva, akkor megjelenik az elfogadás gomb*/}
 
-                                    return <>{`${days[index]}: ${time}`}<br /></>;    //A nyitvatartási idők megjelenítése listában
-
-                                })}
-                                <br />
-                                {
-                                    place.rating_calculated === -1
-                                        ? t('map.norating')
-                                        : <>{t('map.rating')} {(place.rating_calculated).toFixed(2)}</> //Az értékelések átlaga 2 tizedesjegy pontossággal
-                                }
-                                <br />
-                                <br />
-                                {currentUser && <Review place={place} triggerUpdate={getPlaceList} />} {/*A hely értékelése*/}
-                                <ShowReviews place={place} triggerUpdate={getPlaceList} />
-                            </Card.Text>
-                            {currentUser && currentUser.uid === adminUser && (  //Csak az admin tudja törölni és elfogadni a helyeket
-                                <>
-                                    <Button variant="warning" href={`https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`} target="_blank">{t('places.openmap')}</Button> {/*A hely megnyitása a Google Maps-en*/}
-                                    <Button variant="danger" onClick={() => deletePlace(place.id)}>{t('places.delete')}</Button>
-                                    {!place.accepted && <Button variant="success" onClick={() => acceptPlace(place.id)} className="ms-2">{t('places.accept')}</Button>}  {/*Ha a hely nincs elfogadva, akkor megjelenik az elfogadás gomb*/}
-
-                                </>
-                            )}
-                        </Card.Body>
-                    </Card>
-                </div>
+                            </>
+                        )}
+                    </Card.Body>
+                </Card>
             )}
         </Container>
     );

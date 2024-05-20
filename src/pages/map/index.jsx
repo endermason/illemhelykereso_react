@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import Mbox from '../../components/mbox';
+import React, { useState, useEffect, useRef } from 'react';
 import '../../index.css';
-import { Container, Col, Row, Button, Card, Accordion } from 'react-bootstrap';
+import { Container, Col, Button, Accordion } from 'react-bootstrap';
 import Navigationbar from '../navbar';
 import AuthContext from '../../contexts/logoutcontext';
 import { useContext } from 'react';
@@ -11,6 +10,10 @@ import PlaceStatusAlert from "../../components/alert"
 import { useTranslation } from 'react-i18next';
 import Review from "../../components/review";
 import ShowReviews from "../../components/showreviews";
+import '../../Map.css';
+import { adminUser } from "../../config/firebase";
+import { Map as MapBoxMap, NavigationControl, Marker, GeolocateControl, Layer, Source } from 'react-map-gl';
+import { downloadPlaces } from "../../components/fbtojson";
 
 
 export const Map = () => {
@@ -23,8 +26,6 @@ export const Map = () => {
     const [instructions, setInstructions] = useState(null);
     const [distance, setDistance] = useState(null);
 
-    const [refresh, setRefresh] = useState(false);
-    const triggerRefresh = () => setRefresh(!refresh);
 
 
     const getRoute = async (end) => {
@@ -51,19 +52,151 @@ export const Map = () => {
 
 
 
+
+
+    
+    const mapContainerRef = useRef(null);
+    const [original, setOriginal] = useState([]);
+    const [filtered, setFiltered] = useState([]);
+
+    
+    const getPlaceList = async () => {
+        let placesList = await downloadPlaces();
+
+        if (currentUser == null || currentUser.uid !== adminUser) {
+            placesList = placesList.filter(place => place.accepted);
+        }
+
+        setOriginal(placesList);
+
+        if (selectedPlace !== null) {
+            setSelectedPlace(placesList.find(place => place.id === selectedPlace.id));
+        }
+    };
+
+
+    useEffect(() => {
+        getPlaceList();
+    }, [currentUser]);
+
+    useEffect(() => {
+        const newFiltered = original.reduce((acc, feature) => {
+            if (filterFunction(feature)) {
+                acc.push(feature);
+            }
+            return acc;
+        }, []);
+        setFiltered(newFiltered);
+    }, [original, filterFunction]) //Külsős filter ablak dolgai
+
+
+    const mapRef = useRef();
+    const geoControlRef = useRef();
+
+    const [routeJson, setRouteJson] = useState(null);
+
+    const layer = {
+        id: 'route',
+        type: 'line',
+        layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        paint: {
+            'line-color': '#3887be',
+            'line-width': 5,
+            'line-opacity': 0.75
+        }
+    };
+
+
+    useEffect(() => {
+        if (route === null || route === undefined) {
+            setRouteJson(null);
+            return;
+        }
+    
+        const data = route.routes[0].geometry.coordinates
+        const geojson = {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'LineString',
+                coordinates: data
+            }
+        };
+        setRouteJson(geojson);
+    }, [route]);
+
+
+
+    const onClick = (place) => {
+            setSelectedPlace(place);
+            setRoute(null);
+            setInstructions(null);
+            setDistance(null);
+        };
+
+
+
+
     return (
         <div style={{ display: "grid", gridTemplateRows: "auto 1fr", height: "100vh" }}>
             <div>
                 <Navigationbar />
             </div>
             <div style={{ position: "relative", height: "100%" }}>
-                <Mbox onClick={(place) => {
-                    setSelectedPlace(place);
-                    setRoute(null);
-                    setInstructions(null);
-                    setDistance(null);
-                }} filter={filterFunction} setMe={setMe} route={route} refresh={refresh} /> {/* mbox.js script funkciója, megcsinálja a térképet és a markereket */}
-
+            <MapBoxMap
+                ref={mapRef}
+                mapboxAccessToken={process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}
+                initialViewState={{
+                    longitude: 19.504001543678186,
+                    latitude: 47.18010736034033,
+                    zoom: 7,
+                }}
+                onLoad={() => {
+                    geoControlRef.current?.trigger();
+                }}
+                style={{ height: "100%"}}
+                mapStyle="mapbox://styles/mapbox/streets-v11"
+                className="map-container"
+            >
+                {routeJson && <Source id="route" type="geojson" data={routeJson}>
+                    <Layer {...layer} />
+                </Source>
+                }
+                <GeolocateControl
+                position="bottom-right" 
+                ref={geoControlRef} 
+                positionOptions={{ enableHighAccuracy: true }} 
+                trackUserLocation={true} 
+                showAccuracyCircle={false} 
+                onGeolocate={(position) => {
+                    setMe({
+                        longitude: position.coords.longitude,
+                        latitude: position.coords.latitude,
+                    }
+                            
+                );
+                }} />
+                <NavigationControl position="bottom-right"  />
+                {filtered && filtered.map((feature) => {
+                    return (
+                        <Marker
+                            key={feature.id}
+                            longitude={feature.coordinates[0]} latitude={feature.coordinates[1]} 
+                            anchor="bottom" 
+                            className="marker"
+                            onClick={() => onClick(feature)}
+                            style={{ cursor: "pointer" }}
+                        >
+                            {feature.accepted ? <img src="../marker.svg" alt="marker" height={24} width={24} /> : <img src="../marker-red.svg"  alt="marker" height={24} width={24} />} 
+                            {/* Ha el van fogadva a hely, akkor zöld, ha nincs, akkor piros */}
+                            </Marker>
+                    );
+                })}
+                </MapBoxMap>
+                
 
                 <Container style={{ zIndex: 5, backgroundColor: "white", position: "absolute", top: 0, left: 0, padding: '1em' }} className={selectedPlace ? 'extra-container info-container' : 'extra-container'}>
                     {selectedPlace && <>
@@ -76,7 +209,7 @@ export const Map = () => {
                                 <Accordion.Item eventKey="1">
                                     <Accordion.Header>
                                         <center style={{ width: "100%", transform: "translateX(calc(var(--bs-accordion-btn-icon-width) / 2))" }}>
-                                            {t('map.openhours')}
+                                            {"🕓 "+t('map.openhours')+" 🕓"}
                                         </center>
                                     </Accordion.Header>
                                     <Accordion.Body style={{ transform: "translateX(calc(var(--bs-accordion-btn-icon-width) / -2))" }}>
@@ -88,11 +221,11 @@ export const Map = () => {
                                     </Accordion.Body>
                                 </Accordion.Item>
                             </Accordion>
-                            <p>{selectedPlace.price === 0 || selectedPlace.price === "" || selectedPlace.price === null ? t('map.free') : `${selectedPlace.price} forint`}</p>
-                            <p>{selectedPlace.accessible ? t('map.accessible') : t('map.notaccessible')}</p>
-                            <p>{selectedPlace.public ? t('map.public') : t('map.private')}</p>
-                            <p>{selectedPlace.rating_calculated === -1 ? t('map.norating') : <>{t('map.rating')} {selectedPlace.rating_calculated.toFixed(2)}</>}</p>
-                            {currentUser && <Review place={selectedPlace} triggerUpdate={triggerRefresh} />} {/*A hely értékelése*/}
+                            <p>{selectedPlace.price === 0 || selectedPlace.price === "" || selectedPlace.price === null ? ("😎 "+t('map.free')+" 😎") : `💸 ${selectedPlace.price} forint 💸`}</p>
+                            <p>{selectedPlace.accessible ? "🦽 "+t('map.accessible')+" 🦽" : "🚫 "+t('map.notaccessible')+" 🚫"}</p>
+                            <p>{selectedPlace.public ? "🏙️ "+t('map.public')+" 🏙️" : "🔐 "+t('map.private')+" 🔐"}</p>
+                            <p>{selectedPlace.rating_calculated === -1 ? "🤔 "+t('map.norating')+" 🤔" : <>{"⭐ "+t('map.rating')} {selectedPlace.rating_calculated.toFixed(2)} ⭐</>}</p>
+                            {currentUser && <Review place={selectedPlace} triggerUpdate={getPlaceList} />} {/*A hely értékelése*/}
                             <ShowReviews place={selectedPlace} /> {/*A hely értékelései*/}
                             {currentUser && me && // ha be van jelentkezve a felhasználó, akkor megjelenik a navigáció gomb
                                 <><br/><Button variant="success" onClick={() => getRoute([selectedPlace.longitude, selectedPlace.latitude])} className='mb-3'>{t('map.navigatemehere')}</Button></>

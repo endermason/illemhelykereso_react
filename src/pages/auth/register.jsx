@@ -2,8 +2,7 @@ import { auth } from '../../config/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
+import { Button, Form, Alert } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 export const Signup = () => {
@@ -17,7 +16,7 @@ export const Signup = () => {
     const validatePassword = (password) => {
         // Check the length
         if (password.length < 8 || password.length > 20) {
-            return t('error.characters') //"A jelszónak 8-20 karakter hosszúnak kell lennie.";
+            return 'error.characters' //"A jelszónak 8-20 karakter hosszúnak kell lennie."; ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
         }
     
         // Check for lowercase letter
@@ -74,9 +73,10 @@ export const Signup = () => {
     };
 
     return (
-        <Form className="signup-page" style={{maxWidth: "50vw", textAlign: "center", margin: "auto", paddingTop: "10vh"}}>
-            <h1 style={{fontSize:"1em", margin:"auto", border: "5px solid red", borderRadius:"1em", width: "10em"}}>{t('register.register')}</h1>
-            {error && <div className="error"  style={{border: "5px solid red"}}>{error}</div>}
+        <>
+        <Form className="signup-page" style={{maxWidth: "50vw", textAlign: "center", margin: "2em auto 1em"}}>
+            <h1>{t('register.register')}</h1>
+            {error && <Alert variant="danger">{t(error)}</Alert>}
             <Form.Group controlId="email">
                 <Form.Label>{t('register.email')}</Form.Label>
                 <Form.Control
@@ -93,7 +93,7 @@ export const Signup = () => {
                     onChange={(e) => setPassword(e.target.value)}
                 />
             </Form.Group>
-            <Form.Group controlId="password" >
+            <Form.Group controlId="password">
                 <Form.Label>{t('register.confirmpassword')}</Form.Label>
                 <Form.Control
                     type="password"
@@ -101,7 +101,8 @@ export const Signup = () => {
                     onChange={(e) => setPasswordConfirm(e.target.value)}
                 />
             </Form.Group>
-            <Button className="signup-btn" onClick={signUp}>{t('register.register')}</Button>
         </Form>
+        <Button className="signup-btn" onClick={signUp}>{t('register.register')}</Button>
+        </>
     );
 };

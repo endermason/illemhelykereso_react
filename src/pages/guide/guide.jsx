@@ -1,12 +1,13 @@
 import React from 'react'
 import { useTranslation, Trans } from 'react-i18next';
-import { Button, Form, Alert, Accordion} from 'react-bootstrap';
+import { Button, Form, Alert, Accordion, Container} from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 export default function Guide() {
   const { t, i18n } = useTranslation();
   return (
     <>
+    <Container>
       <center>
         <h1>{t("help-title")}</h1>
         <h1>{("Egyelőre valami sablon ☺")}</h1>
@@ -50,7 +51,7 @@ export default function Guide() {
 
             <b>Ha elfelejtetted a jelszavadat</b>, vissza tudod állítani a következő lépésekkel:
             <ol>
-              <li>Mondjuk itt: <Link to="/forgotpassword">Elfelejtettem a jelszavam :'(</Link>.</li>
+              <li>Mondjuk itt: <Link to="/forgotpassword">Elfelejtettem a jelszavam 🖕</Link>.</li>
               </ol>
           </Accordion.Body>
         </Accordion.Item>
@@ -61,6 +62,7 @@ export default function Guide() {
           </Accordion.Body>
         </Accordion.Item>
       </Accordion>
+      </Container>
     </>
   );
 }
