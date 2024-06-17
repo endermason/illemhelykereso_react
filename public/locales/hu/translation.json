@@ -1,36 +1,42 @@
 {
     "nav": {
         "main": "Illemhelykereső",
+        "map": "Térkép",
         "places": "Helyek",
         "guide": "Útmutató",
         "loggedinas": "Bejelentkezve mint",
         "login": "Bejelentkezés",
         "register": "Regisztráció",
-        "logout": "Kijelentkezés"
+        "logout": "Kijelentkezés",
+        "404": "Az oldal nem található",
+        "returnhome": "Vissza a <1>főoldalra</1>."
     },
     "register": {
         "register": "Regisztráció",
-        "email": "E-mail cím",
-        "password": "Jelszó",
         "confirmpassword": "Jelszó megerősítése"
     },
     "login": {
         "login": "Bejelentkezés",
-        "email": "E-mail cím",
-        "password": "Jelszó",
         "or": "vagy",
         "forgot": "Elfelejtetted a jelszavad?",
-        "google": "Bejelentkezés Google-fiókkal",
-        "resetb": "",
-        "resets": "Itt",
-        "resete": "visszaállíthatod.",
+        "google": "Folytatás a Google-lal",
         "reset": "<1>Itt</1> visszaállíthatod."
+    },
+    "reset":{
+        "reset": "Elfelejtett jelszó",
+        "email": "Kérlek add meg az e-mail címed, amellyel regisztráltál. Az e-mail címre elküldjük a jelszóvisszaállítási linket.",
+        "sendemail": "Jelszó visszaállítása",
+        "emailsent": "A jelszóvisszaállítási e-mailt elküldtük a megadott címre.",
+        "text": "Add meg a {{email}} címhez tartozó fiók új jelszavát.",
+        "conditions": "A jelszónak 8-20 karakter hosszúnak kell lennie, és tartalmaznia kell legalább egy kisbetűt, egy nagybetűt, egy számot és egy speciális karaktert.",
+        "success": "A jelszóvisszaállítás sikeres volt. Most már bejelentkezhetsz az új jelszavaddal."
     },
     "alert": {
         "openswithin30": "30 percen belül nyit",
         "closeswithin30": "30 percen belül zár",
-        "open": "jelenleg nyitva",
-        "closed": "jelenleg zárva"
+        "open": "Jelenleg nyitva",
+        "closed": "Jelenleg zárva",
+        "noopeningtimes": "Nincs nyitvatartási információ, kérjük, érdeklődjön a helyszínen!" 
     },
     "map": {
         "openhours": "Nyitvatartás",
@@ -73,8 +79,8 @@
         "add": {
             "addplace": "Illemhely hozzáadása",
             "address": "Cím",
-            "addresspaceholder": "pl. 9026 Győr, Egyetem tér 1.",
-            "manualentry": "Hely manuális megadása",
+            "addresspaceholder": "pl. Egyetem tér 1, Győr",
+            "detailedentry": "Hely részletes megadása",
             "address-second": "Cím 2. sora",
             "address-secondpaceholder": "pl. A élpület, 2. emelet, 3. ajtó",
             "city": "Település",
@@ -96,17 +102,23 @@
             "submit": "Hely hozzáadása",
             "reset": "Visszaállítás",
             "from": "-tól",
-            "to": "-ig"
+            "to": "-ig",
+            "byaddress": "Cím alapján", 
+            "bymanual": "Térképes kiválasztással"
         },
         "delete": "Hely törlése",
         "accept": "Hely elfogadása",
         "openmap": "Megnyitás Google Térképen"
     },
+    "email": "E-mail cím",
+    "password": "Jelszó",
+    "save": "Mentés",
     "submit": "Küldés",
     "cancel": "Mégse",
     "delete": "Törlés",
     "review": "Hely értékelése",
     "reviews": "Értékelések",
+    "ownreview": "Saját értékelés",
     "rating": "Értékelés",
     "review-text": "Értékelés szövege",
     "show-reviews": "Értékelések megtekintése",
@@ -120,8 +132,15 @@
         "uppercase":"A jelszónak tartalmaznia kell legalább egy nagybetűt.",
         "number":"A jelszónak tartalmaznia kell legalább egy számot.",
         "special":"A jelszónak tartalmaznia kell legalább egy speciális karaktert.",
-        "samepassword":"A két jelszó nem egyezik meg!",
+        "samepassword":"A jelszavak nem egyeznek meg!",
         "alreadyinuse":"Ez az e-mail cím már használatban van!",
-        "invalidemail":"Érvénytelen e-mail cím!"
+        "invalidemail":"Érvénytelen e-mail cím!",
+        "emptyemail":"Az e-mail cím nem lehet üres!",
+        "password-reset-expired-or-invalid":"A jelszóvisszaállítási link érvénytelen vagy lejárt.",
+        "duplicate": "Ez a hely már létezik és/vagy adminisztrátori elfogadásra vár!",
+        "limit": "Elérte a helyek hozzáadásának napi limitjét!",
+        "fillout": "Kérjük, töltse ki már normálisan az összes mezőt!",
+        "invalidtime": "A nyitás ideje nem lehet azonos vagy később, mint a zárás ideje!",
+        "timeformat": "Érvénytelen időformátum. Kérjük, használjon 24 órás (ÓÓ:PP) formátumot!" 
     }
 }

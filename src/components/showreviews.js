@@ -58,7 +58,6 @@ const ShowReviewsModalContent = ({ place, triggerUpdate }) => {
         const placeDoc = await getDoc(placeDocRef);
 
         const ratingData = placeDoc.data().rating;
-        console.log(ratingData[id]);
 
         // Remove the review with the specified id
         delete ratingData[id];
@@ -80,45 +79,54 @@ const ShowReviewsModalContent = ({ place, triggerUpdate }) => {
         'added-desc': t('places.sort.added-desc'),
         'rating-asc': t('places.sort.rating-asc'),
         'rating-desc': t('places.sort.rating-desc'),
-      };
+    };
 
     return (
         <>
             <Modal.Header closeButton>
-                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                    <Modal.Title className='mx-2'>{t('reviews')}</Modal.Title>
-                    <Dropdown onSelect={(key) => setSortType(key)}>
-                        <Dropdown.Toggle variant="success" id="dropdown-basic" className='mx-2' style={{fontSize: "10pt"}}>
-                            {sortTypeLabels[sortType]}
-                        </Dropdown.Toggle>
-
-                        <Dropdown.Menu>
-                            <Dropdown.Item eventKey="added-asc">{t('places.sort.added-asc')}</Dropdown.Item>
-                            <Dropdown.Item eventKey="added-desc">{t('places.sort.added-desc')}</Dropdown.Item>
-                            <Dropdown.Item eventKey="rating-asc">{t('places.sort.rating-asc')}</Dropdown.Item>
-                            <Dropdown.Item eventKey="rating-desc">{t('places.sort.rating-desc')}</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
+                <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                    <Modal.Title className='mx-2 d-flex align-items-center'>{t('reviews')}</Modal.Title>
                 </div>
             </Modal.Header>
             <Modal.Body>
+                <Dropdown onSelect={(key) => setSortType(key)}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Dropdown.Toggle variant="success" id="dropdown-basic" className='mb-2'
+                            style={{ fontSize: "10pt", whiteSpace: "normal", wordWrap: "break-word" }}>
+                            {sortTypeLabels[sortType]}
+                        </Dropdown.Toggle>
+                    </div>
+
+                    <Dropdown.Menu>
+                        <Dropdown.Item eventKey="added-asc">{t('places.sort.added-asc')}</Dropdown.Item>
+                        <Dropdown.Item eventKey="added-desc">{t('places.sort.added-desc')}</Dropdown.Item>
+                        <Dropdown.Item eventKey="rating-asc">{t('places.sort.rating-asc')}</Dropdown.Item>
+                        <Dropdown.Item eventKey="rating-desc">{t('places.sort.rating-desc')}</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
 
                 {sortedReviews.map((review, index) => (
                     <div key={index} className="mb-3" style={{ borderRadius: "2rem", backgroundColor: "aliceblue" }}>
                         <div className="mb-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            {currentUser && adminUser === currentUser.uid ? <p1>{review.id}</p1> : ""}
+                            {currentUser && (
+                                review.id === currentUser.uid   // Ha bejelentkezett felhasználó és nem admin, akkor csak a saját értékelését jelzi, a többi felhasználó azonosítóját nem
+                                    ? <p1><i><b>{t('ownreview')}</b></i></p1>
+                                    : (adminUser === currentUser.uid && <p1>{review.id}</p1>)   // Ha admin, akkor a saját értékelését jelzi, és a többi felhasználó azonosítóját 
+                            )}
                             <p3>{review.added.toDate().toLocaleDateString()}</p3>
                             <p1>{t('rating')}:</p1>
                             <ReactStars
-                            count={5}
-                            //activeColor={"gold"}
-                            size={30}
-                            value={review.rating}
-                            edit={false}
+                                count={5}
+                                //activeColor={"gold"}
+                                size={30}
+                                value={review.rating}
+                                edit={false}
                             />
                             {review.text && <p1>{t('review-text')}:</p1>}
                             <p2>{review.text}</p2>
-                            <Button className="mb-2" variant="danger" onClick={() => deleteReview(review.id)}>{t('delete')}</Button>
+                            {currentUser && (currentUser.uid === adminUser || review.id === currentUser.uid) ?  // Ha bejelentkezett felhasználó és nem admin, akkor csak a saját értékelését törölheti, a többi felhasználó értékelését nem    
+                                <Button className="mb-2" variant="danger" onClick={() => deleteReview(review.id)}>{t('delete')}</Button>    // Ha admin, akkor bármelyik felhasználó értékelését törölheti, beleértve a sajátját is
+                                : ""}
                         </div>
                     </div>
                 ))}

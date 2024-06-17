@@ -15,7 +15,6 @@ import { adminUser } from "../../config/firebase";
 import { Map as MapBoxMap, NavigationControl, Marker, GeolocateControl, Layer, Source } from 'react-map-gl';
 import { downloadPlaces } from "../../components/fbtojson";
 
-
 export const Map = () => {
     const { t } = useTranslation();
     const { currentUser } = useContext(AuthContext);
@@ -26,12 +25,13 @@ export const Map = () => {
     const [instructions, setInstructions] = useState(null);
     const [distance, setDistance] = useState(null);
 
-
+    useEffect(() => { document.title = t("nav.map") + " | " + t("nav.main"); });
 
     const getRoute = async (end) => {
         const query = await fetch(
-            //`https://api.mapbox.com/directions/v5/mapbox/walking/17.638832149211858,47.679272511881216;${end[0]},${end[1]}?steps=true&walkway_bias=1&overview=full&language=hu&geometries=geojson&access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`,
+            // régi `https://api.mapbox.com/directions/v5/mapbox/walking/17.638832149211858,47.679272511881216;${end[0]},${end[1]}?steps=true&walkway_bias=1&overview=full&language=hu&geometries=geojson&access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`,
             `https://api.mapbox.com/directions/v5/mapbox/walking/${me.longitude},${me.latitude};${end[0]},${end[1]}?steps=true&walkway_bias=1&overview=full&language=hu&geometries=geojson&access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`,
+            // `https://api.mapbox.com/directions/v5/mapbox/walking/17.632454725489566,47.6863019222125;${end[0]},${end[1]}?steps=true&walkway_bias=1&overview=full&language=hu&geometries=geojson&access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`,
             { method: 'GET' }
         );
         const json = await query.json();
@@ -201,15 +201,14 @@ export const Map = () => {
                 <Container style={{ zIndex: 5, backgroundColor: "white", position: "absolute", top: 0, left: 0, padding: '1em' }} className={selectedPlace ? 'extra-container info-container' : 'extra-container'}>
                     {selectedPlace && <>
                         <Col className='info-container'>
-                            <PlaceStatusAlert selectedPlace={selectedPlace} />
-                            <h2>{selectedPlace.name}</h2>
-                            <p>{selectedPlace.description}</p>
-                            <p>{selectedPlace.city}, {selectedPlace.address}</p>
-                            <Accordion defaultActiveKey="0" flush>
+                            <PlaceStatusAlert selectedPlace={selectedPlace} />   
+                            <h5><b>{selectedPlace.city}, {selectedPlace.address}</b></h5>    {/* cím kiírása */}
+                            {selectedPlace.comments && <p>({selectedPlace.comments})</p>}   {/* ha van megjegyzés, kiírja */}
+                            <Accordion defaultActiveKey="0" flush className='mb-2'>
                                 <Accordion.Item eventKey="1">
                                     <Accordion.Header>
                                         <center style={{ width: "100%", transform: "translateX(calc(var(--bs-accordion-btn-icon-width) / 2))" }}>
-                                            {"🕓 "+t('map.openhours')+" 🕓"}
+                                                {t('map.openhours')+" 🕓"}
                                         </center>
                                     </Accordion.Header>
                                     <Accordion.Body style={{ transform: "translateX(calc(var(--bs-accordion-btn-icon-width) / -2))" }}>
@@ -221,10 +220,10 @@ export const Map = () => {
                                     </Accordion.Body>
                                 </Accordion.Item>
                             </Accordion>
-                            <p>{selectedPlace.price === 0 || selectedPlace.price === "" || selectedPlace.price === null ? ("😎 "+t('map.free')+" 😎") : `💸 ${selectedPlace.price} forint 💸`}</p>
-                            <p>{selectedPlace.accessible ? "🦽 "+t('map.accessible')+" 🦽" : "🚫 "+t('map.notaccessible')+" 🚫"}</p>
-                            <p>{selectedPlace.public ? "🏙️ "+t('map.public')+" 🏙️" : "🔐 "+t('map.private')+" 🔐"}</p>
-                            <p>{selectedPlace.rating_calculated === -1 ? "🤔 "+t('map.norating')+" 🤔" : <>{"⭐ "+t('map.rating')} {selectedPlace.rating_calculated.toFixed(2)} ⭐</>}</p>
+                            <p>{selectedPlace.price === 0 || selectedPlace.price === "" || selectedPlace.price === null ? (t('map.free')+" 😎") : `${selectedPlace.price} forint 💸`}</p>
+                            <p>{selectedPlace.accessible ? t('map.accessible')+" 🦽" : t('map.notaccessible')+" 🚫"}</p>
+                            <p>{selectedPlace.public ? t('map.public')+" 🏙️" : t('map.private')+" 🔐"}</p>
+                            <p>{selectedPlace.rating_calculated === -1 ? t('map.norating')+" 🤔" : <>{t('map.rating')} {selectedPlace.rating_calculated.toFixed(2)} ⭐</>}</p>
                             {currentUser && <Review place={selectedPlace} triggerUpdate={getPlaceList} />} {/*A hely értékelése*/}
                             <ShowReviews place={selectedPlace} /> {/*A hely értékelései*/}
                             {currentUser && me && // ha be van jelentkezve a felhasználó, akkor megjelenik a navigáció gomb

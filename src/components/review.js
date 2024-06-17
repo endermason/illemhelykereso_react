@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Col, ToggleButton, Modal, Form, Button } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import AuthContext from "../contexts/logoutcontext";
@@ -40,6 +40,46 @@ const ReviewModalContent = ({ place, triggerUpdate, handleClose }) => {
         handleClose();
     };
 
+    const [userHasReview, setUserHasReview] = useState(false);
+
+    useEffect(() => {
+        const checkUserHasReview = async () => {
+            const placeDocRef = doc(db, "places", place.id);
+            const placeDoc = await getDoc(placeDocRef);
+
+            const ratingData = placeDoc.data().rating;
+
+            // Check if ratingData is defined and if the user has a review
+            if (ratingData && ratingData.hasOwnProperty(currentUser.uid)) {
+                setUserHasReview(true);
+            } else {
+                setUserHasReview(false);
+            }
+        };
+
+        checkUserHasReview();
+    }, [place, currentUser]);
+
+    const deleteReview = async () => {
+        const placeDocRef = doc(db, "places", place.id);
+        const placeDoc = await getDoc(placeDocRef);
+
+        const ratingData = placeDoc.data().rating;
+
+        // Check if the user has a review
+        if (ratingData.hasOwnProperty(currentUser.uid)) {
+            // Remove the user's review
+            delete ratingData[currentUser.uid];
+
+            // Update the rating field in the place document
+            await updateDoc(placeDocRef, { rating: ratingData });
+
+            setUserHasReview(false);
+            triggerUpdate();
+            handleClose();
+        }
+    };
+
     const [isSubmitEnabled, setIsSubmitEnabled] = useState(false);
 
     useEffect(() => {
@@ -76,6 +116,7 @@ const ReviewModalContent = ({ place, triggerUpdate, handleClose }) => {
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={handleClose}>{t('cancel')}</Button>
+                {userHasReview && <Button variant="danger" onClick={deleteReview}>{t('delete')}</Button>}
                 <Button variant="primary" onClick={submitReview} disabled={!isSubmitEnabled}>{t('submit')}</Button>
             </Modal.Footer>
         </>
@@ -96,7 +137,6 @@ const Review = ({ place, triggerUpdate }) => {
     return (
         <>
             <Button variant="primary" onClick={handleShow} className="mb-3">{t('review')}</Button>
-            
             <Modal show={show} onHide={handleClose}>
                 {show && <ReviewModalContent place={place} triggerUpdate={triggerUpdate} handleClose={handleClose} />}
             </Modal>

@@ -86,3 +86,11 @@ code {
     display: none;
   }
 }
+
+.guide-list {
+  list-style-type: decimal;
+  list-style-position: outside  ;
+  padding-left: 2em;
+  text-indent: 0em;
+  /* Add any other custom settings here */
+}

@@ -21,7 +21,7 @@ function Navigationbar() {
   return (
     <Navbar bg="primary" data-bs-theme="light" collapseOnSelect expand="lg" className="bg-warning-subtle">
       <Container>
-        <Navbar.Brand as={Link} to="/">{t('nav.main')}</Navbar.Brand>
+        <Navbar.Brand as={Link} to="/">{"🚽 "+t('nav.main')}</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="me-auto">

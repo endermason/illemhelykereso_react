@@ -1,36 +1,42 @@
 {
     "nav": {
         "main": "Restroom Finder",
+        "map": "Map",
         "places": "Places",
         "guide": "Guide",
         "loggedinas": "Logged in as",
         "login": "Login",
         "register": "Register",
-        "logout": "Logout"
+        "logout": "Logout",
+        "404": "Page not found.",
+        "returnhome": "Return to the <1>homepage</1>."
     },
     "register": {
         "register": "Register",
-        "email": "Email",
-        "password": "Password",
         "confirmpassword": "Confirm password"
     },
     "login": {
         "login": "Login",
-        "email": "Email",
-        "password": "Password",
         "or": "or",
         "forgot": "Forgot your password?",
-        "google": "Login with Google",
-        "resetb": "You can reset it",
-        "resets": "here.",
-        "resete": "",
+        "google": "Sign in with Google",
         "reset": "You can reset it <1>here</1>."
     },
+    "reset": {
+        "reset": "Reset password",
+        "email": "Please enter your email address. We will send you an email with instructions on how to reset your password.",
+        "sendemail": "Reset password",
+        "emailsent": "An email has been sent to you with instructions on how to reset your password.",
+        "text": "Please enter the new password for the account at the following email address: <1>{{email}}</1>.",
+        "conditions": "The password must be 8-20 characters long and contain at least one lowercase letter, one uppercase letter, one number, and one special character.",
+        "success": "The password has been successfully reset. You can now log in with the new password."
+    },
     "alert": {
-        "openswithin30": "opens within the next 30 minutes",
-        "closeswithin30": "closes within the next 30 minutes",
-        "open": "currently open",
-        "closed": "currently closed"
+        "openswithin30": "Opens within the next 30 minutes",
+        "closeswithin30": "Closes within the next 30 minutes",
+        "open": "Currently open",
+        "closed": "Currently closed",
+        "noopeningtimes": "No opening times available"
     },
     "map": {
         "openhours": "Open hours",
@@ -73,8 +79,8 @@
         "add": {
             "addplace": "Add a new place",
             "address": "Address",
-            "addresspaceholder": "e.g. 123 Main Street",
-            "manualentry": "Manual entry",
+            "addresspaceholder": "e.g. 123 Main Street, Budapest",
+            "detailedentry": "Enter detailed address",
             "address-second": "Address (second line)",
             "address-secondpaceholder": "e.g. Suite 200",
             "city": "City",
@@ -96,21 +102,27 @@
             "submit": "Add place",
             "reset": "Reset",
             "from": "from",
-            "to": "to"
+            "to": "to",
+            "byaddress": "By address",
+            "bymanual": "By selecting on map"
         },
         "delete": "Delete place",
         "accept": "Accept place",
         "openmap": "Open in Google Maps"
     },
+    "email": "Email",
+    "password": "Password",
     "submit": "Submit",
+    "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
     "review": "Review place",
+    "ownreview": "Own review",
     "reviews": "Reviews",
     "rating": "Rating",
     "review-text": "Review text",
     "show-reviews": "Show reviews",
-    "error":{
+    "error": {
         "usernotfound": "User not found",
         "wrongpassword": "Incorrect password",
         "error": "An error occurred. Please try again later.",
@@ -122,6 +134,13 @@
         "special": "The password must contain at least one special character.",
         "samepassword": "The passwords do not match.",
         "alreadyinuse": "This email address is already in use.",
-        "invalidemail": "Invalid email address."
+        "invalidemail": "Invalid email address.",
+        "emptyemail": "The email address field cannot be empty.",
+        "password-reset-expired-or-invalid": "The password reset link is invalid or has expired.",
+        "duplicate": "This place is already in the database and/or is waiting for approval by an administrator!",
+        "limit": "You have reached the daily limit of adding new places!",
+        "fillout": "Please fill out all fields according to the instructions!",
+        "invalidtime": "The opening time should not be the same or later than the closing time!",
+        "timeformat": "Invalid time format. Please use the HH:MM format!"
     }
 }

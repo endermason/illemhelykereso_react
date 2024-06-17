@@ -35,62 +35,62 @@ const Filters = ({ setFilterFunction }) => {
 
     return (
         <>
-                <ToggleButton
-                    className="mb-1 me-2"
-                    id="accessible-check"
-                    type="checkbox"
-                    variant="outline-primary"
-                    checked={filters.accessible}
-                    onChange={(e) => {
-                        let newFilters = { ...filters };
-                        newFilters.accessible = e.target.checked;
-                        setFilters(newFilters);
-                    }}
-                >
-                    <span>{t('filter.accessible')}</span>
-                </ToggleButton>
-                <ToggleButton
-                    className="mb-1 me-2"
-                    id="free-check"
-                    type="checkbox"
-                    variant="outline-primary"
-                    checked={filters.free}
-                    onChange={(e) => {
-                        let newFilters = { ...filters };
-                        newFilters.free = e.target.checked;
-                        setFilters(newFilters);
-                    }}
-                >
-                    <span>{t('filter.free')}</span>
-                </ToggleButton>
-                <ToggleButton
-                    className="mb-1 me-2"
-                    id="public-check"
-                    type="checkbox"
-                    variant="outline-primary"
-                    checked={filters.public}
-                    onChange={(e) => {
-                        let newFilters = { ...filters };
-                        newFilters.public = e.target.checked;
-                        setFilters(newFilters);
-                    }}
-                >
-                    <span>{t('filter.public')}</span>
-                </ToggleButton>
-                <ToggleButton
-                    className="mb-1"
-                    id="open-check"
-                    type="checkbox"
-                    variant="outline-primary"
-                    checked={filters.open}
-                    onChange={(e) => {
-                        let newFilters = { ...filters };
-                        newFilters.open = e.target.checked;
-                        setFilters(newFilters);
-                    }}
-                >
-                    <span>{t('filter.currentlyopen')}</span>
-                </ToggleButton>
+            <ToggleButton
+                className="mb-1 me-2"
+                id="accessible-check"
+                type="checkbox"
+                variant="outline-primary"
+                checked={filters.accessible}
+                onChange={(e) => {
+                    let newFilters = { ...filters };
+                    newFilters.accessible = e.target.checked;
+                    setFilters(newFilters);
+                }}
+            >
+                <span>{t('filter.accessible')}</span>
+            </ToggleButton>
+            <ToggleButton
+                className="mb-1 me-2"
+                id="free-check"
+                type="checkbox"
+                variant="outline-primary"
+                checked={filters.free}
+                onChange={(e) => {
+                    let newFilters = { ...filters };
+                    newFilters.free = e.target.checked;
+                    setFilters(newFilters);
+                }}
+            >
+                <span>{t('filter.free')}</span>
+            </ToggleButton>
+            <ToggleButton
+                className="mb-1 me-2"
+                id="public-check"
+                type="checkbox"
+                variant="outline-primary"
+                checked={filters.public}
+                onChange={(e) => {
+                    let newFilters = { ...filters };
+                    newFilters.public = e.target.checked;
+                    setFilters(newFilters);
+                }}
+            >
+                <span>{t('filter.public')}</span>
+            </ToggleButton>
+            <ToggleButton
+                className="mb-1"
+                id="open-check"
+                type="checkbox"
+                variant="outline-primary"
+                checked={filters.open}
+                onChange={(e) => {
+                    let newFilters = { ...filters };
+                    newFilters.open = e.target.checked;
+                    setFilters(newFilters);
+                }}
+            >
+                <span>{t('filter.currentlyopen')}</span>
+            </ToggleButton>
         </>
     );
 };

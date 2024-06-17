@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useContext, Fragment, useRef } from "react";
 import { db, adminUser } from "../../config/firebase";
 import { collection, addDoc, serverTimestamp, deleteDoc, doc, updateDoc } from "firebase/firestore";
-import { Button, Card, Container, Row, Col, Form, Dropdown, Pagination, Tabs, Tab } from "react-bootstrap";
+import { Alert, Button, Card, Container, Row, Col, Form, Dropdown, Pagination, Tabs, Tab } from "react-bootstrap";
 import { AddressAutofill, AddressMinimap, useConfirmAddress, config } from '@mapbox/search-js-react';
 import AuthContext from "../../contexts/logoutcontext";
 import { downloadPlaces } from '../../components/fbtojson';
@@ -13,6 +13,7 @@ import { Map as MapBoxMap, Marker } from 'react-map-gl';
 
 export const useDays = () => {
     const { t } = useTranslation();
+    useEffect(() => { document.title = t("nav.places") + " | " + t("nav.main"); })
     return [t('days.monday'), t('days.tuesday'), t('days.wednesday'), t('days.thursday'), t('days.friday'), t('days.saturday'), t('days.sunday')];
 };
 const Orders = {
@@ -27,12 +28,15 @@ const Orders = {
 
 export function Places() {
     const { t } = useTranslation();
+
     const days = useDays();
+
     const { currentUser } = useContext(AuthContext);
 
     const [placeList, setPlaceList] = useState([]);
 
     const [addedTodayCount, setAddedTodayCount] = useState(0);
+    console.log(addedTodayCount)
 
     const [errorMessage, setErrorMessage] = useState(null);
 
@@ -113,6 +117,57 @@ export function Places() {
         }));
     }
 
+    const [alertMessage, setAlertMessage] = useState(null);
+
+    useEffect(() => {
+        if (errorMessage ) {
+            const timeout = setTimeout(() => {
+                setErrorMessage(null);
+            }, 10000);  // 10 másodperc után eltűnik az error message
+            return () => clearTimeout(timeout);
+        }
+    }, [errorMessage]);
+
+    useEffect(() => {
+        if (alertMessage) {
+            const timeout = setTimeout(() => {
+                setAlertMessage(null);
+            }, 5000);  // 5 másodperc után eltűnik az alert message
+            return () => clearTimeout(timeout);
+        }
+    }, [alertMessage]);
+
+    const formatTime = (time) => {
+        if (!time) {
+            return '';
+        }
+
+        let parts = time.split(':');
+        if (parts.length === 1 && time.length === 4) {
+            parts = [time.slice(0, 2), time.slice(2)];
+        } else if (parts.length === 1 && time.length === 3) {
+            parts = ['0' + time.slice(0, 1), time.slice(1)];
+        }
+        if (parts.length === 2) {
+            const hours = parseInt(parts[0], 10);
+            const minutes = parseInt(parts[1], 10);
+            if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
+                return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
+            } else {
+                setErrorMessage("error.timeformat")
+            }
+        } else if (parts.length === 1) {
+            const hours = parseInt(parts[0], 10);
+            if (hours >= 0 && hours <= 23) {
+                return `${parts[0].padStart(2, '0')}:00`;
+            } else {
+                setErrorMessage("error.timeformat")
+            }
+        } else {
+            setErrorMessage("error.timeformat")
+        }
+    }
+
     const onSubmitPlace = async (e) => {
         e.preventDefault();
         let existingPlace;
@@ -120,75 +175,108 @@ export function Places() {
             existingPlace = placeList.find(
                 (place) =>
                     place.city.toLowerCase() === feature.properties.place.toLowerCase() &&
-                    place.address.toLowerCase() === (feature.properties.address_line1 + (feature.properties.address_line2 ? " " + feature.properties.address_line2 : "")).toLowerCase()
+                    place.address.toLowerCase() === (feature.properties.address_line1 + (feature.properties.address_line2 ? " " + feature.properties.address_line2 : "")).toLowerCase() &&
+                    place.comments.toLowerCase() === newPlaceComments.toLowerCase()     //Kommentet megnézi, hogy az egyezik-e
             );
         } else {
             existingPlace = placeList.find(
                 (place) =>
                     place.city.toLowerCase() === manualAddress.place.toLowerCase() &&
-                    place.address.toLowerCase() === (manualAddress.address_line1 + (manualAddress.address_line2 ? " " + manualAddress.address_line2 : "")).toLowerCase()
+                    place.address.toLowerCase() === (manualAddress.address_line1 + (manualAddress.address_line2 ? " " + manualAddress.address_line2 : "")).toLowerCase() &&
+                    place.comments.toLowerCase() === newPlaceComments.toLowerCase()    //Kommentet megnézi, hogy az egyezik-e
             );
         }
 
         const addedTodayAlready = adminUser !== currentUser.uid && addedTodayCount >= 5;
 
+        const validateForm = () => {
+            let isNotEmpty = true;
+            let isValidTime = true;
+            newPlaceOpenHours.forEach(hour => {
+                if ((hour.intervalFrom === "" && hour.intervalTo !== "") || (hour.intervalFrom !== "" && hour.intervalTo === "")) {
+                    isNotEmpty = false;
+                }
+            });
+            return isNotEmpty;
+        };
+        const validateTime = () => {
+            let isValidTime = true;
+            for (let i = 0; i < newPlaceOpenHours.length; i++) {
+                const openingTime = formatTime(newPlaceOpenHours[i].intervalFrom);
+                const closingTime = formatTime(newPlaceOpenHours[i].intervalTo);
+                if (closingTime <= openingTime) {
+                    isValidTime = false;
+                }
+            }
+            return isValidTime;
+        };
+
         if (existingPlace) {
-            setErrorMessage("A hely már létezik vagy elfogadásra vár.");
+            setErrorMessage(t('error.duplicate'));
         } else if (addedTodayAlready) {
-            setErrorMessage("Már adott hozzá 5 helyet az elmúlt 24 órában.");
+            setErrorMessage(t('error.limit'));
         } else {
-            setErrorMessage(null);
-            try {
-                console.log(key);
-                if (key === "place") {
-                await addDoc(placeCollectionRef,
-                    {
-                        country: feature.properties.country,
-                        city: feature.properties.place,
-                        address: feature.properties.address_line1 + (feature.properties.address_line2 ? " " + feature.properties.address_line2 : ""),
-                        price: Number(newPlacePrice),
-                        comments: newPlaceComments,
-                        accessible: newPlaceAccessible,
-                        accepted: newPlaceAccepted || currentUser.uid === adminUser,
-                        latitude: feature.geometry.coordinates[1],
-                        longitude: feature.geometry.coordinates[0],
-                        opening_times: newPlaceOpenHours.map((day) => `${day.intervalFrom}-${day.intervalTo}`),
-                        public: newPlacePublic,
-                        added: serverTimestamp(),
-                        added_by: currentUser.uid,
-
-                    });
+            const isValidForm = validateForm();
+            if (isValidForm === false) {
+                setErrorMessage(t('error.fillout'));
+            } else {
+                const isValidTime = validateTime();
+                if (isValidTime === false) {
+                    setErrorMessage(t('error.invalidtime'));
                 } else {
-                    await addDoc(placeCollectionRef,
-                        {
-                            country: manualAddress.country,
-                            city: manualAddress.place,
-                            address: manualAddress.address_line1 + (manualAddress.address_line2 ? " " + manualAddress.address_line2 : ""),
-                            price: Number(newPlacePrice),
-                            comments: newPlaceComments,
-                            accessible: newPlaceAccessible,
-                            accepted: newPlaceAccepted || currentUser.uid === adminUser,
-                            latitude: manualCoordinates.latitude,
-                            longitude: manualCoordinates.longitude,
-                            opening_times: newPlaceOpenHours.map((day) => `${day.intervalFrom}-${day.intervalTo}`),
-                            public: newPlacePublic,
-                            added: serverTimestamp(),
-                            added_by: currentUser.uid,
-                        });
+                    setErrorMessage(null);
+                    try {
+                        if (key === "place") {
+                            await addDoc(placeCollectionRef,
+                                {
+                                    country: feature.properties.country,
+                                    city: feature.properties.place,
+                                    address: feature.properties.address_line1 + (feature.properties.address_line2 ? " " + feature.properties.address_line2 : ""),
+                                    price: Number(newPlacePrice),
+                                    comments: newPlaceComments,
+                                    accessible: newPlaceAccessible,
+                                    accepted: newPlaceAccepted || currentUser.uid === adminUser,
+                                    latitude: feature.geometry.coordinates[1],
+                                    longitude: feature.geometry.coordinates[0],
+                                    opening_times: newPlaceOpenHours.map((day) => `${day.intervalFrom}-${day.intervalTo}`),
+                                    public: newPlacePublic,
+                                    added: serverTimestamp(),
+                                    added_by: currentUser.uid,
+
+                                });
+                        } else {
+                            await addDoc(placeCollectionRef,
+                                {
+                                    country: manualAddress.country,
+                                    city: manualAddress.place,
+                                    address: manualAddress.address_line1 + (manualAddress.address_line2 ? " " + manualAddress.address_line2 : ""),
+                                    price: Number(newPlacePrice),
+                                    comments: newPlaceComments,
+                                    accessible: newPlaceAccessible,
+                                    accepted: newPlaceAccepted || currentUser.uid === adminUser,
+                                    latitude: manualCoordinates.latitude,
+                                    longitude: manualCoordinates.longitude,
+                                    opening_times: newPlaceOpenHours.map((day) => `${day.intervalFrom}-${day.intervalTo}`),
+                                    public: newPlacePublic,
+                                    added: serverTimestamp(),
+                                    added_by: currentUser.uid,
+                                });
+                        }
+
+
+                        getPlaceList(); // A lista frissítése
+                        setAlertMessage("added-place");
+
+                        // Reset form
+                        resetForm();
                     }
-
-
-                getPlaceList(); // A lista frissítése
-
-                // Reset form
-                resetForm();
+                    catch (err) {
+                        console.error(err);
+                    }
+                }
             }
-            catch (err) {
-                console.error(err);
-            }
-        }
-
-    };
+        };
+    }
 
     function resetForm() {
         const inputs = document.querySelectorAll("input");
@@ -244,7 +332,7 @@ export function Places() {
     const [filterFunction, setFilterFunction] = useState(() => (place) => true);
 
     //Sorting and pagination
-    const [sortOrder, setSortOrder] = useState(Orders.ADDED_ASC);     //Rendezés sorrendje
+    const [sortOrder, setSortOrder] = useState(Orders.ADDED_DESC);     //Rendezés sorrendje
     const [sortedPlaces, setSortedPlaces] = useState([]);   //Rendezett teljes lista
     const [pageNumbers, setPageNumbers] = useState([1]);    //Oldalszámok listája
     const [currentPage, setCurrentPage] = useState(1);      //Aktuális oldal sorszáma
@@ -312,7 +400,7 @@ export function Places() {
         handleSortOrderChange(sortOrder);
     }, [placeList, handleSortOrderChange, sortOrder]);
 
-    
+
     const mapRef = useRef();
     const [manualAddress, setManualAddress] = useState({
         address_line1: "",
@@ -326,7 +414,6 @@ export function Places() {
         latitude: null,
         longitude: null,
     });
-    console.log(manualAddress);
 
     const getAddress = async (longitude, latitude) => {
         const query = await fetch(
@@ -334,7 +421,6 @@ export function Places() {
             { method: 'GET' }
         );
         const json = await query.json();
-        console.log(json);
 
         if (json.features.length > 0) {
             const addressFeature = json.features.find((feature) => feature.properties.feature_type === "address");
@@ -404,6 +490,9 @@ export function Places() {
                     </div>
                 </Col>
             </Row>
+            <Row>
+                {alertMessage && <Alert variant="success">{t(`places.alert.${alertMessage}`)}</Alert>}
+            </Row>
             {currentUser && (addedTodayCount <= 5 || adminUser === currentUser.uid) && <>
                 {!showAddPlaceExpanded &&
                     <div
@@ -415,8 +504,21 @@ export function Places() {
                     </div>
                 }
                 <Form ref={formRef} onSubmit={onSubmitPlace} style={{ display: showAddPlaceExpanded ? 'block' : 'none' }}>
-                    <Tabs activeKey={key} onSelect={(e) => setKey(e)} id="place-tab" className="mb-3" fill justify style={{ paddingRight: "0px" }}>
-                        <Tab eventKey="place" title={"Gépi"}>
+                    <Tabs activeKey={key}
+                        onSelect={(selectedKey) => {
+                            setKey(selectedKey);
+                            if (selectedKey === 'manual') {
+                                setTimeout(() => {
+                                    const map = mapRef.current.getMap();
+                                    map.resize();
+                                }, 0);
+                            }
+                        }}
+                        id="place-tab"
+                        className="mb-3"
+                        fill justify
+                        style={{ paddingRight: "0px" }}>
+                        <Tab eventKey="place" title={t('places.add.byaddress')}>
                             <Row>
                                 <Col xs={12} lg={6} className="mb-3">
                                     <Form.Group>
@@ -443,7 +545,7 @@ export function Places() {
                                             className="mb-3 mt-3"
                                             onClick={() => setShowFormExpanded(true)}
                                         >
-                                            {t('places.add.manualentry')}
+                                            {t('places.add.detailedentry')}
                                         </Button>
                                     }
                                     <div className="secondary-inputs" style={{ display: showFormExpanded ? 'block' : 'none' }}>
@@ -512,12 +614,12 @@ export function Places() {
                                 </Col>
                             </Row>
                         </Tab>
-                        <Tab eventKey="manual" title={"Kézi"}>
+                        <Tab eventKey="manual" title={t('places.add.bymanual')}>
                             <Row>
                                 <Col xs={12} lg={6} className="mb-3">
                                     <Form.Group>
                                         <Form.Label>{t('places.add.address')}</Form.Label>
-                                        <Form.Control required type="text" placeholder={t('places.add.addresspaceholder')} name="address-first" value={manualAddress.address_line1} onChange={(e) => { setManualAddress({ ...manualAddress, address_line1: e.target.value }) }} />
+                                        <Form.Control type="text" placeholder={t('places.add.addresspaceholder')} name="address-first" value={manualAddress.address_line1} onChange={(e) => { setManualAddress({ ...manualAddress, address_line1: e.target.value }) }} />
                                     </Form.Group>
                                     <Form.Group controlId="address-second">
                                         <Form.Label>{t('places.add.address-second')}</Form.Label>
@@ -536,9 +638,9 @@ export function Places() {
                                         <Form.Control type="text" placeholder={t('places.add.postalcodepaceholder')} name="zip" value={manualAddress.postcode} onChange={(e) => { setManualAddress({ ...manualAddress, postcode: e.target.value }) }} />
                                     </Form.Group>
                                 </Col>
-                                <Col xs={12} lg={6} className="mb-3">
-                                    <div style={{ position: 'relative'}}>
-                                        <center style={{ zIndex: 1 }}>
+                                <Col xs={12} lg={6} className="mb-3" id='kol'>
+                                    <div style={{ position: 'relative' }} id="kulsodiv">
+                                        <center style={{ zIndex: 1 }} id="cen">
                                             {/* Visual confirmation map */}
                                             <div
                                                 id="minimap-container"
@@ -548,7 +650,8 @@ export function Places() {
                                                     ref={mapRef}
                                                     mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}
                                                     mapStyle="mapbox://styles/mapbox/streets-v11"
-                                                    style={{ width: "100%", aspectRatio: "2" }}
+                                                    id="terkep"
+                                                    style={{ width: "100%", aspectRatio: "1.85" }}
                                                     initialViewState={{
                                                         longitude: 19.504001543678186,
                                                         latitude: 47.18010736034033,
@@ -560,7 +663,7 @@ export function Places() {
                                                             longitude: e.lngLat.lng
                                                         });
                                                     }}
-                                                    >
+                                                >
                                                     {manualCoordinates.latitude && manualCoordinates.longitude && <Marker latitude={manualCoordinates.latitude} longitude={manualCoordinates.longitude} />}
                                                 </MapBoxMap>
                                                 <p>
@@ -575,13 +678,13 @@ export function Places() {
                             </Row>
                         </Tab>
                     </Tabs>
-                    <hr/>
-                        
+                    <hr />
+
                     <Row>
                         <Col xs={12} lg={6} className="mb-3">
                             <Form.Group controlId="price">
                                 <Form.Label>{t('places.add.price')}</Form.Label>
-                                <Form.Control type="number" placeholder={t('places.add.pricepaceholder')} value={newPlacePrice} onChange={(e) => setNewPlacePrice(Number(e.target.value))} />
+                                <Form.Control type="number" min="0" step="0.01" placeholder={t('places.add.pricepaceholder')} value={newPlacePrice} onChange={(e) => setNewPlacePrice(Number(e.target.value))} />
                             </Form.Group>
                         </Col>
                         <Col xs={12} lg={6} className="mb-3">
@@ -610,48 +713,74 @@ export function Places() {
                                 />
                             </Form.Group>
                         </Col>
-                        <hr/>
+                        <hr />
                         <Col xs={12} className="mb-2 p-3">
                             {t('map.openhours')}
                         </Col>
                         {days.map((day, index) => (
                             <Fragment key={index}>
                                 <Col xs={12} lg={4} className="mb-3 d-flex justify-content-center align-items-end">
-                                {day}
+                                    {day}
                                 </Col>
                                 <Col xs={6} lg={4} className="mb-3">
-                                <Form.Group controlId={`interval-from-${index}`}>
-                                    <Form.Control type="text" placeholder={t('places.add.from')} value={newPlaceOpenHours[index].intervalFrom} onChange={(e) => {
-                                    const newOpenHours = [...newPlaceOpenHours];
-                                    newOpenHours[index].intervalFrom = e.target.value;
-                                    setNewPlaceOpenHours(newOpenHours);
-                                    }} />
-                                </Form.Group>
+                                    <Form.Group controlId={`interval-from-${index}`}>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder={t('places.add.from')}
+                                            value={newPlaceOpenHours[index].intervalFrom}
+                                            onChange={(e) => {
+                                                const newOpenHours = [...newPlaceOpenHours];
+                                                newOpenHours[index].intervalFrom = e.target.value.replace(/[^0-9:]/g, '');  //Csak számok és kettőspont lehet
+                                                setNewPlaceOpenHours(newOpenHours);
+                                            }}
+                                            onBlur={(e) => {
+                                                const newOpenHours = [...newPlaceOpenHours];
+                                                newOpenHours[index].intervalFrom = formatTime(e.target.value);
+                                                setNewPlaceOpenHours(newOpenHours);
+                                            }}
+                                            maxLength={5}   //Maximális beírható karakterek száma
+                                        />
+                                    </Form.Group>
                                 </Col>
                                 <Col xs={6} lg={4} className="mb-3">
-                                <Form.Group controlId={`interval-to-${index}`}>
-                                    <Form.Control type="text" placeholder={t('places.add.to')} value={newPlaceOpenHours[index].intervalTo} onChange={(e) => {
-                                    const newOpenHours = [...newPlaceOpenHours];
-                                    newOpenHours[index].intervalTo = e.target.value;
-                                    setNewPlaceOpenHours(newOpenHours);
-                                    }} />
-                                </Form.Group>
+                                    <Form.Group controlId={`interval-to-${index}`}>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder={t('places.add.to')}
+                                            value={newPlaceOpenHours[index].intervalTo}
+                                            onChange={(e) => {
+                                                const newOpenHours = [...newPlaceOpenHours];
+                                                newOpenHours[index].intervalTo = e.target.value.replace(/[^0-9:]/g, ''); //Csak számok és kettőspont lehet
+                                                setNewPlaceOpenHours(newOpenHours);
+                                            }}
+                                            onBlur={(e) => {
+                                                const newOpenHours = [...newPlaceOpenHours];
+                                                newOpenHours[index].intervalTo = formatTime(e.target.value);
+                                                setNewPlaceOpenHours(newOpenHours);
+                                            }}
+                                            maxLength={5}   //Maximális beírható karakterek száma
+                                        />
+                                    </Form.Group>
                                 </Col>
                             </Fragment>
-                            ))}
+                        ))}
                         <Col xs={12} className="mt-2 mb-3" />
-                        <hr/>
+                        <hr />
 
                         {/* Form buttons */}
                         {(showFormExpanded || (key === "manual" && manualCoordinates.latitude !== null && manualCoordinates.longitude !== null)) &&
-                            <div className="mb-3 d-flex justify-content-center align-items-end">
-                                {errorMessage && <div>{errorMessage}</div>}
-                                <Button variant="primary" type="submit" className="me-2">
-                                    {t('places.add.submit')}
-                                </Button>
-                                <Button variant="secondary" type="button" className="ms-2" onClick={resetForm}>
-                                    {t('places.add.reset')}
-                                </Button>
+                            <div className="mb-3 d-flex flex-column align-items-center">
+                                <div className="w-100">
+                                    {errorMessage && <Alert variant="danger" dismissible>{t(errorMessage)}</Alert>}
+                                </div>
+                                <div className="d-flex justify-content-center align-items-end">
+                                    <Button variant="primary" type="submit" className="me-2">
+                                        {t('places.add.submit')}
+                                    </Button>
+                                    <Button variant="secondary" type="button" className="ms-2" onClick={resetForm}>
+                                        {t('places.add.reset')}
+                                    </Button>
+                                </div>
                             </div>
                         }
                     </Row>

@@ -3,21 +3,10 @@ import { db } from "../config/firebase";
 import { getDocs, collection } from "firebase/firestore";
 
 export async function downloadPlaces() {
-    /*
     try {
-            const data = await getDocs(placeCollectionRef); // Az adatok lekérése a Firestore-ból
-            const filteredData = data.docs.map((doc) => ({ ...doc.data(), id: doc.id })); // Az adatok feldolgozása, hozzáadva az id-t
-            // console.log(filteredData);
-            setPlaceList(filteredData); // Az adatok beállítása a state-be
-        } catch (err) {
-            console.error(err);
-        }
-        */
-
-    try {
-        const placesCollection = collection(db, "places");
-        const placesSnapshot = await getDocs(placesCollection);
-        const placesList = placesSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+        const placesCollection = collection(db, "places");  // A Firestore collection referencia
+        const placesSnapshot = await getDocs(placesCollection);     // Az adatok lekérése a Firestore-ból
+        const placesList = placesSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })); // Az adatok feldolgozása, hozzáadva az id-t
 
         // Store data in constants
         const constants = placesList.reduce((acc, place) => {
@@ -33,7 +22,7 @@ export async function downloadPlaces() {
             acc.push(p);
             return acc;
         }, []);
-        
+
         return constants;
     } catch (err) {
         console.error(err);

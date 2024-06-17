@@ -1,33 +1,42 @@
 {
     "nav": {
         "main": "Toilettenfinder",
+        "map": "Karte",
         "places": "Orte",
         "guide": "Anleitung",
         "loggedinas": "Eingeloggt als",
         "login": "Einloggen",
         "register": "Registrieren",
-        "logout": "Ausloggen"
+        "logout": "Ausloggen",
+        "404": "Seite nicht gefunden.",
+        "returnhome": "Zurück zur <1>Startseite</1>."
     },
     "register": {
         "register": "Registrieren",
-        "email": "E-Mail-Adresse",
-        "password": "Passwort",
         "confirmpassword": "Passwort bestätigen"
     },
     "login": {
-        "login": "Einloggen",
-        "email": "E-Mail-Adresse",
-        "password": "Passwort",
+        "login": "Anmelden",
         "or": "oder",
         "forgot": "Passwort vergessen?",
-        "google": "Mit Google einloggen",
+        "google": "Über Google anmelden",
         "reset": "<1>Hier</1> kannst du es zurücksetzen."
     },
+    "reset": {
+        "reset": "Passwort zurücksetzen",
+        "email": "Bitte gib deine E-Mail-Adresse ein mit der du dich registriert hast. Wir werden dir eine E-Mail zum Zurücksetzen des Passworts senden.",
+        "sendemail": "Passwort zurücksetzen",
+        "emailsent": "Die E-Mail zum Zurücksetzen des Passworts wurde gesendet.",
+        "text": "Gib das neue Passwort für das Konto bei der folgenden E-Mail-Adresse ein: {{email}}.",
+        "conditions": "Das Passwort muss 8-20 Zeichen lang sein, mindestens einen Kleinbuchstaben, einen Großbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
+        "success": "Das Passwort wurde erfolgreich zurückgesetzt. Jetzt kannst du dich schon anmelden."
+    },
     "alert": {
-        "openswithin30": "öffnet innerhalb von 30 Minuten",
-        "closeswithin30": "schließt innerhalb von 30 Minuten",
-        "open": "zurzeit geöffnet",
-        "closed": "zurzeit geschlossen"
+        "openswithin30": "Öffnet innerhalb von 30 Minuten",
+        "closeswithin30": "Schließt innerhalb von 30 Minuten",
+        "open": "Zurzeit geöffnet",
+        "closed": "Zurzeit geschlossen",
+        "noopeningtimes": "Keine Öffnungszeiten verfügbar"
     },
     "map": {
         "openhours": "Öffnungszeiten",
@@ -70,8 +79,8 @@
         "add": {
             "addplace": "Ort hinzufügen",
             "address": "Adresse",
-            "addresspaceholder": "z.B. Mariahilfer Straße 6, 1060 Wien",
-            "manualentry": "Manuelle Eingabe",
+            "addresspaceholder": "z.B. Mariahilfer Straße 6, Wien",
+            "detailedentry": "Ort detailliert eingeben",
             "address-second": "Adresszusatz",
             "address-secondpaceholder": "z.B. 3. Stock, Tür 12",
             "city": "Ortschaft",
@@ -93,32 +102,45 @@
             "submit": "Ort hinzufügen",
             "reset": "Zurücksetzen",
             "from": "von",
-            "to": "bis"
+            "to": "bis",
+            "byaddress": "Nach Adresse",
+            "bymanual": "Nach Markierung auf Karte"
         },
         "delete": "Ort löschen",
         "accept": "Ort akzeptieren",
         "openmap": "Ort auf Google Maps öffnen"
     },
+    "email": "E-Mail-Adresse",
+    "password": "Passwort",
+    "save": "Speichern",
     "submit": "Absenden",
     "cancel": "Abbrechen",
     "delete": "Löschen",
     "review": "Ort bewerten",
+    "ownreview": "Eigene Bewertung",
     "reviews": "Bewertungen",
     "rating": "Bewertung",
     "review-text": "Scrifftliche Bewertung",
     "show-reviews": "Bewertungen anzeigen",
-    "error":{
+    "error": {
         "usernotfound": "Benutzer nicht gefunden",
         "wrongpassword": "Falsches Passwort",
         "error": "Ein Fehler ist aufgetreten. Bitte versuche es später erneut.",
         "googleerror": "Ein Fehler ist bei der Google-Authentifizierung aufgetreten. Bitte versuche es später erneut.",
-        "characters":"Das Passwort muss 8-20 Zeichen lang sein.",
-        "lovercase":"Das Passwort muss mindestens einen Kleinbuchstaben enthalten.",
-        "uppercase":"Das Passwort muss mindestens einen Großbuchstaben enthalten.",
-        "number":"Das Passwort muss mindestens eine Zahl enthalten.",
-        "special":"Das Passwort muss mindestens ein Sonderzeichen enthalten.",
-        "samepassword":"Die Passwörter stimmen nicht überein.",
-        "alreadyinuse":"Diese E-Mail-Adresse wird bereits verwendet.",
-        "invalidemail":"Die E-Mail-Adresse ist ungültig."
+        "characters": "Das Passwort muss 8-20 Zeichen lang sein.",
+        "lovercase": "Das Passwort muss mindestens einen Kleinbuchstaben enthalten.",
+        "uppercase": "Das Passwort muss mindestens einen Großbuchstaben enthalten.",
+        "number": "Das Passwort muss mindestens eine Zahl enthalten.",
+        "special": "Das Passwort muss mindestens ein Sonderzeichen enthalten.",
+        "samepassword": "Die Passwörter stimmen nicht überein.",
+        "alreadyinuse": "Diese E-Mail-Adresse wird bereits verwendet.",
+        "invalidemail": "Die E-Mail-Adresse ist ungültig.",
+        "emptyemail": "Die E-Mail-Adresse darf nicht leer sein.",
+        "password-reset-expired-or-invalid": "Der Link zum Zurücksetzen des Passworts ist abgelaufen oder ungültig.",
+        "duplicate": "Dieser Ort wurde bereits hinzugefügt und/oder wartet auf Admin-Bestätigung.",
+        "limit": "Sie haben das Tageslimit für das Hinzufügen von Orten erreicht!",
+        "fillout": "Bitte füllen Sie alle Felder normálisan aus.",
+        "invalidtime": "Die Zeit der Öffnung darf nicht das Selbe oder später als die Schließzeit sein.",
+        "timeformat": "Ungültiges Zeitformat. Bitte verwenden Sie das Format HH:MM."
     }
 }
