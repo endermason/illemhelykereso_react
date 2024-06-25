@@ -58,8 +58,6 @@ export const Auth = () => {
             localStorage.setItem("auth", JSON.stringify(authInfo));
             navigate("/");
         } catch (err) {
-            console.error(err);
-            // Consider adding specific error handling for Google sign-in if necessary
             setError('error.googleerror');
         }
     };

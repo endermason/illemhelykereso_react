@@ -20,16 +20,17 @@
         "or": "oder",
         "forgot": "Passwort vergessen?",
         "google": "Über Google anmelden",
-        "reset": "<1>Hier</1> kannst du es zurücksetzen."
+        "reset": "<1>Hier</1> können Sie es zurücksetzen."
     },
     "reset": {
         "reset": "Passwort zurücksetzen",
-        "email": "Bitte gib deine E-Mail-Adresse ein mit der du dich registriert hast. Wir werden dir eine E-Mail zum Zurücksetzen des Passworts senden.",
+        "newpassword": "Neues Passwort einstellen",
+        "email": "Bitte geben Sie Ihre E-Mail-Adresse ein mit der Sie sich registriert haben. Wir werden Ihnen eine E-Mail zum Zurücksetzen des Passworts schicken.",
         "sendemail": "Passwort zurücksetzen",
         "emailsent": "Die E-Mail zum Zurücksetzen des Passworts wurde gesendet.",
-        "text": "Gib das neue Passwort für das Konto bei der folgenden E-Mail-Adresse ein: {{email}}.",
+        "text": "Geben Sie das neue Passwort für das Konto bei der folgenden E-Mail-Adresse ein: <1>{{email}}</1>.",
         "conditions": "Das Passwort muss 8-20 Zeichen lang sein, mindestens einen Kleinbuchstaben, einen Großbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
-        "success": "Das Passwort wurde erfolgreich zurückgesetzt. Jetzt kannst du dich schon anmelden."
+        "success": "Das Passwort wurde erfolgreich zurückgesetzt. Jetzt können Sie sich schon anmelden."
     },
     "alert": {
         "openswithin30": "Öffnet innerhalb von 30 Minuten",
@@ -78,6 +79,7 @@
         },
         "add": {
             "addplace": "Ort hinzufügen",
+            "addedplace": "Der eingegebene Ort wird nach der Überprüfung durch einen Administrator hinzugefügt. Vielen Dank für Ihren Beitrag!",
             "address": "Adresse",
             "addresspaceholder": "z.B. Mariahilfer Straße 6, Wien",
             "detailedentry": "Ort detailliert eingeben",
@@ -94,7 +96,6 @@
             "adjustmarker": "Markierung anpassen",
             "mapfooter": "Passen Sie die Markierung an, um den genauen Standort des Ortes zu markieren.",
             "price": "Preis",
-            "pricepaceholder": "z.B. 0.50 €",
             "comments": "Kommentare",
             "commentspaceholder": "z.B. Nur für Kunden",
             "accessible": "Barrierefrei",
@@ -122,6 +123,9 @@
     "rating": "Bewertung",
     "review-text": "Scrifftliche Bewertung",
     "show-reviews": "Bewertungen anzeigen",
+    "show": "Passwort anzeigen",
+    "hide": "Passwort verbergen",
+    "localcurrency": "Preis in lokaler Währung",
     "error": {
         "usernotfound": "Benutzer nicht gefunden",
         "wrongpassword": "Falsches Passwort",
@@ -139,8 +143,8 @@
         "password-reset-expired-or-invalid": "Der Link zum Zurücksetzen des Passworts ist abgelaufen oder ungültig.",
         "duplicate": "Dieser Ort wurde bereits hinzugefügt und/oder wartet auf Admin-Bestätigung.",
         "limit": "Sie haben das Tageslimit für das Hinzufügen von Orten erreicht!",
-        "fillout": "Bitte füllen Sie alle Felder normálisan aus.",
+        "fillout": "Bitte füllen Sie die Öffnungszeiten richtig aus.",
         "invalidtime": "Die Zeit der Öffnung darf nicht das Selbe oder später als die Schließzeit sein.",
-        "timeformat": "Ungültiges Zeitformat. Bitte verwenden Sie das Format HH:MM."
+        "selectplace": "Bitte wählen Sie einen Ort auf der Karte aus und füllen Sie / überprüfen Sie die restlichen Informationen."
     }
 }

@@ -109,25 +109,21 @@ function SetNewPassword({ actionCode }) {
         const validatePassword = (password) => {
             // Check the length
             if (password.length < 8 || password.length > 20) {
-                console.log("Length error"); 
                 return 'error.characters' //"A jelszónak 8-20 karakter hosszúnak kell lennie.";
             }
 
             // Check for lowercase letter
             if (!/[a-z]/.test(password)) {
-                console.log("Lowercase letter");
                 return 'error.lowercase' //"A jelszónak tartalmaznia kell legalább egy kisbetűt.";
             }
 
             // Check for uppercase letter
             if (!/[A-Z]/.test(password)) {
-                console.log("Uppercase letter");
                 return 'error.uppercase' //"A jelszónak tartalmaznia kell legalább egy nagybetűt.";
             }
 
             // Check for number
             if (!/[0-9]/.test(password)) {
-                console.log("Number");
                 return 'error.number' //"A jelszónak tartalmaznia kell legalább egy számot.";
             }
 
@@ -175,6 +171,8 @@ function SetNewPassword({ actionCode }) {
         return (
             <Container>
                 <Alert variant="danger">{t(oobError)}</Alert>
+                <br />
+                <Link to="/login">{t("login.login")}</Link>
             </Container>
         );
     }
@@ -183,7 +181,8 @@ function SetNewPassword({ actionCode }) {
         return (
             <Container>
                 <Alert variant="success">{t("reset.success")}</Alert>
-                <Link to="/">{t("login.login")}</Link>
+                <br />
+                <Link to="/login">{t("login.login")}</Link>
             </Container>
         );
     }
@@ -194,10 +193,8 @@ function SetNewPassword({ actionCode }) {
                 {error && <Alert variant="danger">{t(error)}</Alert>}
             </div>
             <Form style={{ textAlign: "center", margin: "2em auto 1em" }}>
-                <h1>{t("reset.reset")}</h1>
-                <p><Trans i18nKey="reset.text" email={email}>
-                    <b>{{ email }}</b>
-                </Trans></p>
+                <h1>{t("reset.newpassword")}</h1>
+                <p><Trans i18nKey="reset.text" values={{ "email": email }}> <b> </b> </Trans></p>
                 
                 <Form.Label>{t("password")}</Form.Label>
                     <InputGroup className="mb-2" id="password">

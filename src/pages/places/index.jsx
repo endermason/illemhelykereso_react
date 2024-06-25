@@ -10,10 +10,11 @@ import { useTranslation } from 'react-i18next';
 import Review from "../../components/review";
 import ShowReviews from "../../components/showreviews";
 import { Map as MapBoxMap, Marker } from 'react-map-gl';
+import { currencyByCountry } from "../../components/currency";
 
 export const useDays = () => {
     const { t } = useTranslation();
-    useEffect(() => { document.title = t("nav.places") + " | " + t("nav.main"); })
+    useEffect(() => { document.title = t('nav.places') + " | " + t('nav.main'); })
     return [t('days.monday'), t('days.tuesday'), t('days.wednesday'), t('days.thursday'), t('days.friday'), t('days.saturday'), t('days.sunday')];
 };
 const Orders = {
@@ -23,8 +24,7 @@ const Orders = {
     RATING_DESC: "rating-desc",
     ADDED_ASC: "added-asc",
     ADDED_DESC: "added-desc",
-}
-
+};
 
 export function Places() {
     const { t } = useTranslation();
@@ -36,9 +36,10 @@ export function Places() {
     const [placeList, setPlaceList] = useState([]);
 
     const [addedTodayCount, setAddedTodayCount] = useState(0);
-    console.log(addedTodayCount)
 
     const [errorMessage, setErrorMessage] = useState(null);
+
+    const [lastUpdated, setLastUpdated] = useState(null);
 
     // New Place States
 
@@ -50,10 +51,7 @@ export function Places() {
 
     // Update Place States
 
-    const [updatedPlaceAccepted, setUpdatedPlaceAccepted] = useState(false);
-
     const placeCollectionRef = collection(db, "places");
-
 
     const [key, setKey] = useState('place');
 
@@ -85,7 +83,7 @@ export function Places() {
 
         setAddedTodayCount(placeList.filter(
             (place) =>
-                place.added.seconds > (Date.now() / 1000 - 24 * 60 * 60) &&
+                place.added.seconds > (Date.now() / 1000 - 24 * 60 * 60) && // 24 órán belül hozzáadott helyek
                 place.added_by === currentUser.uid
         ).length);
     }, [])
@@ -93,11 +91,11 @@ export function Places() {
     const { formRef } = useConfirmAddress({
         minimap: true,
         skipConfirmModal: (feature) => {
-            ['exact', 'high'].includes(feature.properties.match_code.confidence)
+            ['exact', 'high'].includes(feature.properties.match_code.confidence)    //Ha a cím megbízhatósága magas, akkor nem jön fel a megerősítő ablak
         }
     });
 
-    const handleRetrieve = useCallback(
+    const handleRetrieve = useCallback( //A térképes kiválasztás után a hely kiválasztása
         (res) => {
             const feature = res.features[0];
             setFeature(feature);
@@ -107,7 +105,7 @@ export function Places() {
         [setFeature, setShowMinimap]
     );
 
-    function handleSaveMarkerLocation(coordinate) {
+    function handleSaveMarkerLocation(coordinate) { //Minimapon kiválasztott hely mentése
         setFeature((prev) => ({
             ...prev,
             geometry: {
@@ -120,7 +118,7 @@ export function Places() {
     const [alertMessage, setAlertMessage] = useState(null);
 
     useEffect(() => {
-        if (errorMessage ) {
+        if (errorMessage) {
             const timeout = setTimeout(() => {
                 setErrorMessage(null);
             }, 10000);  // 10 másodperc után eltűnik az error message
@@ -137,40 +135,9 @@ export function Places() {
         }
     }, [alertMessage]);
 
-    const formatTime = (time) => {
-        if (!time) {
-            return '';
-        }
-
-        let parts = time.split(':');
-        if (parts.length === 1 && time.length === 4) {
-            parts = [time.slice(0, 2), time.slice(2)];
-        } else if (parts.length === 1 && time.length === 3) {
-            parts = ['0' + time.slice(0, 1), time.slice(1)];
-        }
-        if (parts.length === 2) {
-            const hours = parseInt(parts[0], 10);
-            const minutes = parseInt(parts[1], 10);
-            if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
-                return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
-            } else {
-                setErrorMessage("error.timeformat")
-            }
-        } else if (parts.length === 1) {
-            const hours = parseInt(parts[0], 10);
-            if (hours >= 0 && hours <= 23) {
-                return `${parts[0].padStart(2, '0')}:00`;
-            } else {
-                setErrorMessage("error.timeformat")
-            }
-        } else {
-            setErrorMessage("error.timeformat")
-        }
-    }
-
     const onSubmitPlace = async (e) => {
         e.preventDefault();
-        let existingPlace;
+        let existingPlace;  // Ha true, akkor már van ilyen hely a listában
         if (key === "place") {
             existingPlace = placeList.find(
                 (place) =>
@@ -189,9 +156,8 @@ export function Places() {
 
         const addedTodayAlready = adminUser !== currentUser.uid && addedTodayCount >= 5;
 
-        const validateForm = () => {
+        const validateForm = () => {    //Ha csak az egyik időpontot adta meg az egyik napra, akkor false
             let isNotEmpty = true;
-            let isValidTime = true;
             newPlaceOpenHours.forEach(hour => {
                 if ((hour.intervalFrom === "" && hour.intervalTo !== "") || (hour.intervalFrom !== "" && hour.intervalTo === "")) {
                     isNotEmpty = false;
@@ -199,12 +165,12 @@ export function Places() {
             });
             return isNotEmpty;
         };
-        const validateTime = () => {
+        const validateTime = () => {    //Ha a nyitás ugyanakkor vagy később van, mint a nyitás, akkor false
             let isValidTime = true;
             for (let i = 0; i < newPlaceOpenHours.length; i++) {
-                const openingTime = formatTime(newPlaceOpenHours[i].intervalFrom);
-                const closingTime = formatTime(newPlaceOpenHours[i].intervalTo);
-                if (closingTime <= openingTime) {
+                const openingTime = newPlaceOpenHours[i].intervalFrom;
+                const closingTime = newPlaceOpenHours[i].intervalTo;
+                if (closingTime <= openingTime && closingTime !== "" && openingTime !== "") {
                     isValidTime = false;
                 }
             }
@@ -212,40 +178,43 @@ export function Places() {
         };
 
         if (existingPlace) {
-            setErrorMessage(t('error.duplicate'));
+            setErrorMessage('error.duplicate'); //Ha már létezik a hely, akkor errort dob
         } else if (addedTodayAlready) {
-            setErrorMessage(t('error.limit'));
+            setErrorMessage('error.limit'); //Ha már 5 helyet hozzáadott a felhasználó 24 órán belül, akkor errort dob
         } else {
             const isValidForm = validateForm();
+            // if ((manualAddress.address_line1 === "" || manualAddress.place === "") && (feature.properties.address_line1 === "" || feature.properties.place === "")){
+            //     setErrorMessage('error.selectplace');   //Ha térképes kiválasztásnál nem jött cím vissza, akkor errort dob
+            // } else if
             if (isValidForm === false) {
-                setErrorMessage(t('error.fillout'));
+                setErrorMessage('error.fillout');   //Ha csak az egyik időpontot adta meg az egyik napra, akkor errort dob
             } else {
                 const isValidTime = validateTime();
                 if (isValidTime === false) {
-                    setErrorMessage(t('error.invalidtime'));
+                    setErrorMessage('error.invalidtime');   //Ha a nyitás ugyanakkor vagy később van, mint a zárás, akkor errort dob
                 } else {
                     setErrorMessage(null);
                     try {
                         if (key === "place") {
                             await addDoc(placeCollectionRef,
                                 {
-                                    country: feature.properties.country,
-                                    city: feature.properties.place,
-                                    address: feature.properties.address_line1 + (feature.properties.address_line2 ? " " + feature.properties.address_line2 : ""),
-                                    price: Number(newPlacePrice),
-                                    comments: newPlaceComments,
-                                    accessible: newPlaceAccessible,
-                                    accepted: newPlaceAccepted || currentUser.uid === adminUser,
-                                    latitude: feature.geometry.coordinates[1],
-                                    longitude: feature.geometry.coordinates[0],
-                                    opening_times: newPlaceOpenHours.map((day) => `${day.intervalFrom}-${day.intervalTo}`),
-                                    public: newPlacePublic,
-                                    added: serverTimestamp(),
-                                    added_by: currentUser.uid,
+                                    country: feature.properties.country,    //Ország
+                                    city: feature.properties.place, //Város
+                                    address: feature.properties.address_line1 + (feature.properties.address_line2 ? " " + feature.properties.address_line2 : ""),   //Cím (cím1 + cím2)
+                                    price: Number(newPlacePrice),   //Használati díj
+                                    comments: newPlaceComments, //Megjegyzés
+                                    accessible: newPlaceAccessible, //Akadálymentes-e
+                                    accepted: newPlaceAccepted || currentUser.uid === adminUser,    //Elfogadva-e
+                                    latitude: feature.geometry.coordinates[1],  //Földrajzi szélesség
+                                    longitude: feature.geometry.coordinates[0], //Földrajzi hosszúság
+                                    opening_times: newPlaceOpenHours.map((day) => `${day.intervalFrom}-${day.intervalTo}`), //Nyitvatartás (naponként, intervallumokkal)
+                                    public: newPlacePublic, //Nyilvános-e
+                                    added: serverTimestamp(),   //Hozzáadás dátuma
+                                    added_by: currentUser.uid,  //Hozzáadó felhasználó
 
                                 });
                         } else {
-                            await addDoc(placeCollectionRef,
+                            await addDoc(placeCollectionRef,    //Ugyanaz, mint előbb, csak a manuális hozzáadásnál
                                 {
                                     country: manualAddress.country,
                                     city: manualAddress.place,
@@ -265,7 +234,7 @@ export function Places() {
 
 
                         getPlaceList(); // A lista frissítése
-                        setAlertMessage("added-place");
+                        setAlertMessage("places.add.addedplace");
 
                         // Reset form
                         resetForm();
@@ -314,6 +283,7 @@ export function Places() {
         });
     }
 
+
     const [newPlaceOpenHours, setNewPlaceOpenHours] = useState([
         { intervalFrom: "", intervalTo: "" },
         { intervalFrom: "", intervalTo: "" },
@@ -325,13 +295,10 @@ export function Places() {
     ]);
 
 
-    //window.location -> helyhez
-
-
-
     const [filterFunction, setFilterFunction] = useState(() => (place) => true);
 
-    //Sorting and pagination
+
+    //Rendezés és pagination
     const [sortOrder, setSortOrder] = useState(Orders.ADDED_DESC);     //Rendezés sorrendje
     const [sortedPlaces, setSortedPlaces] = useState([]);   //Rendezett teljes lista
     const [pageNumbers, setPageNumbers] = useState([1]);    //Oldalszámok listája
@@ -339,9 +306,9 @@ export function Places() {
     const [actualPlaces, setActualPlaces] = useState([]);   //Aktuális oldalon megjelenő elemek
 
 
-    //Handle sorting order change
+    //Rendezési sorrend változtatásának kezelése
     const handleSortOrderChange = useCallback((order) => {
-        let newSortedPlaces = [...placeList].filter((place) => place.accepted || (currentUser && currentUser.uid === adminUser)).filter(filterFunction); //TODO extend with filter
+        let newSortedPlaces = [...placeList].filter((place) => place.accepted || (currentUser && currentUser.uid === adminUser)).filter(filterFunction);
 
         switch (order) {
             case Orders.PLACE_ASC:
@@ -387,7 +354,7 @@ export function Places() {
     }, [placeList, filterFunction, currentUser]);
 
 
-    //Handle page change
+    //Oldal váltás kezelése
     const handelPageChange = useCallback((pageNumber) => {
         setActualPlaces(sortedPlaces.slice((pageNumber - 1) * 10, pageNumber * 10)); //2 place / oldal
 
@@ -395,7 +362,7 @@ export function Places() {
     }, [sortedPlaces]);
 
 
-    //Update Places on sort order change
+    //Helyek frissítése a rendezési sorrend változásakor
     useEffect(() => {
         handleSortOrderChange(sortOrder);
     }, [placeList, handleSortOrderChange, sortOrder]);
@@ -415,14 +382,14 @@ export function Places() {
         longitude: null,
     });
 
-    const getAddress = async (longitude, latitude) => {
+    const getAddress = async (longitude, latitude) => { //Koordináták alapján cím lekérdezése (mapbox GeoCoding API)
         const query = await fetch(
             `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${longitude}&latitude=${latitude}&types=address,street&access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`,
             { method: 'GET' }
         );
         const json = await query.json();
 
-        if (json.features.length > 0) {
+        if (json.features.length > 0) { //Ha van viszontválasz
             const addressFeature = json.features.find((feature) => feature.properties.feature_type === "address");
             const feature = addressFeature || json.features.find((feature) => feature.properties.feature_type === "street");
 
@@ -445,10 +412,20 @@ export function Places() {
         }
     };
     useEffect(() => {
-        if (manualCoordinates.latitude && manualCoordinates.longitude) {
+        if (manualCoordinates.latitude && manualCoordinates.longitude) {    //Ha megvannak a koordináták, akkor lekérdezi a címet
             getAddress(manualCoordinates.longitude, manualCoordinates.latitude);
         }
-    }, [manualCoordinates]);
+    }, [manualCoordinates]);    //Mindig, ha a koordináták változnak
+
+    useEffect(() => {
+        setLastUpdated('manualAddress');
+    }, [manualAddress]);
+
+    useEffect(() => {
+        if (feature && feature.properties) {
+            setLastUpdated('feature');
+        }
+    }, [feature?.properties]);
 
     return (
         <Container className="Places">
@@ -491,7 +468,7 @@ export function Places() {
                 </Col>
             </Row>
             <Row>
-                {alertMessage && <Alert variant="success">{t(`places.alert.${alertMessage}`)}</Alert>}
+                {alertMessage && <Alert variant="success">{t(alertMessage)}</Alert>}
             </Row>
             {currentUser && (addedTodayCount <= 5 || adminUser === currentUser.uid) && <>
                 {!showAddPlaceExpanded &&
@@ -684,7 +661,15 @@ export function Places() {
                         <Col xs={12} lg={6} className="mb-3">
                             <Form.Group controlId="price">
                                 <Form.Label>{t('places.add.price')}</Form.Label>
-                                <Form.Control type="number" min="0" step="0.01" placeholder={t('places.add.pricepaceholder')} value={newPlacePrice} onChange={(e) => setNewPlacePrice(Number(e.target.value))} />
+                                <Form.Control type="number" min="0" step="0.01"
+                                    placeholder={
+                                        lastUpdated === 'manualAddress'
+                                            ? currencyByCountry(manualAddress.country, t)
+                                            : lastUpdated === 'feature'
+                                                ? currencyByCountry(feature.properties.country, t)
+                                                : ""
+                                    }
+                                    value={newPlacePrice} onChange={(e) => setNewPlacePrice(Number(e.target.value))}/>
                             </Form.Group>
                         </Col>
                         <Col xs={12} lg={6} className="mb-3">
@@ -725,40 +710,29 @@ export function Places() {
                                 <Col xs={6} lg={4} className="mb-3">
                                     <Form.Group controlId={`interval-from-${index}`}>
                                         <Form.Control
-                                            type="text"
+                                            type="time"
                                             placeholder={t('places.add.from')}
                                             value={newPlaceOpenHours[index].intervalFrom}
                                             onChange={(e) => {
                                                 const newOpenHours = [...newPlaceOpenHours];
-                                                newOpenHours[index].intervalFrom = e.target.value.replace(/[^0-9:]/g, '');  //Csak számok és kettőspont lehet
+                                                newOpenHours[index].intervalFrom = e.target.value;  //Csak számok és kettőspont lehet
                                                 setNewPlaceOpenHours(newOpenHours);
                                             }}
-                                            onBlur={(e) => {
-                                                const newOpenHours = [...newPlaceOpenHours];
-                                                newOpenHours[index].intervalFrom = formatTime(e.target.value);
-                                                setNewPlaceOpenHours(newOpenHours);
-                                            }}
-                                            maxLength={5}   //Maximális beírható karakterek száma
+
                                         />
                                     </Form.Group>
                                 </Col>
                                 <Col xs={6} lg={4} className="mb-3">
                                     <Form.Group controlId={`interval-to-${index}`}>
                                         <Form.Control
-                                            type="text"
+                                            type="time"
                                             placeholder={t('places.add.to')}
                                             value={newPlaceOpenHours[index].intervalTo}
                                             onChange={(e) => {
                                                 const newOpenHours = [...newPlaceOpenHours];
-                                                newOpenHours[index].intervalTo = e.target.value.replace(/[^0-9:]/g, ''); //Csak számok és kettőspont lehet
+                                                newOpenHours[index].intervalTo = e.target.value;
                                                 setNewPlaceOpenHours(newOpenHours);
                                             }}
-                                            onBlur={(e) => {
-                                                const newOpenHours = [...newPlaceOpenHours];
-                                                newOpenHours[index].intervalTo = formatTime(e.target.value);
-                                                setNewPlaceOpenHours(newOpenHours);
-                                            }}
-                                            maxLength={5}   //Maximális beírható karakterek száma
                                         />
                                     </Form.Group>
                                 </Col>
@@ -791,12 +765,14 @@ export function Places() {
                 <Card key={place.id} border="secondary" style={{ marginBottom: "3rem", backgroundColor: place.accepted ? "lightgreen" : "salmon", borderRadius: "2rem" }}>
                     <Card.Body>
                         <Card.Title>{place.city}, {place.address}</Card.Title>
-                        <Card.Subtitle style={{ marginBottom: "1rem" }}>{place.comments}</Card.Subtitle>
+                        <Card.Subtitle style={{ marginBottom: "1rem" }}>{place.comments ? `(${place.comments})` : ""}</Card.Subtitle>
                         <Card.Text as="div">
-                            {place.public ? t('map.public') : t('map.private')}
+                            {place.public ? <>{t('map.public') + " 🏙️"}</> : <>{t('map.private') + " 🔐"}</>}
+                            <br />
+                            {place.price === 0 || place.price === "" || place.price === null ? (t('map.free') + " 😎") : `${place.price} ${currencyByCountry(place.country, t)} 💸`}
                             <br />
                             <br />    {/*A hely publikus vagy privát*/}
-                            {t('map.openhours')}<br /> {/*A nyitvatartási idők*/}
+                            <b>{t('map.openhours') + " 🕓"}</b><br /> {/*A nyitvatartási idők*/}
 
                             {place.opening_times.map((time, index) => {
                                 return <Fragment key={index}>{`${days[index]}: ${time}`}<br /></Fragment>;    //A nyitvatartási idők megjelenítése listában
@@ -804,8 +780,8 @@ export function Places() {
                             <br />
                             {
                                 place.rating_calculated === -1
-                                    ? t('map.norating')
-                                    : <>{t('map.rating')} {(place.rating_calculated).toFixed(2)}</> //Az értékelések átlaga 2 tizedesjegy pontossággal
+                                    ? <>{t('map.norating') + " 🤔"}</>
+                                    : <>{t('map.rating')} {(place.rating_calculated).toFixed(2) + " ⭐"}</> //Az értékelések átlaga 2 tizedesjegy pontossággal
                             }
                             <br />
                             <br />

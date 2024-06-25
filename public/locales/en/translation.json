@@ -24,6 +24,7 @@
     },
     "reset": {
         "reset": "Reset password",
+        "newpassword": "Set new password",
         "email": "Please enter your email address. We will send you an email with instructions on how to reset your password.",
         "sendemail": "Reset password",
         "emailsent": "An email has been sent to you with instructions on how to reset your password.",
@@ -78,6 +79,7 @@
         },
         "add": {
             "addplace": "Add a new place",
+            "addedplace": "The submitted place has been sent for approval by an administrator. Thank you for your contribution!",
             "address": "Address",
             "addresspaceholder": "e.g. 123 Main Street, Budapest",
             "detailedentry": "Enter detailed address",
@@ -93,8 +95,7 @@
             "cancelmarker": "Cancel marker",
             "adjustmarker": "Adjust marker",
             "mapfooter": "Click on the map to place a marker",
-            "price": "Price",
-            "pricepaceholder": "e.g. 200 HUF",
+            "price": "Fee",
             "comments": "Comments",
             "commentspaceholder": "e.g. Only for customers",
             "accessible": "Accessible",
@@ -122,6 +123,9 @@
     "rating": "Rating",
     "review-text": "Review text",
     "show-reviews": "Show reviews",
+    "show": "Show password",
+    "hide": "Hide password",
+    "localcurrency": "Fee in local currency",
     "error": {
         "usernotfound": "User not found",
         "wrongpassword": "Incorrect password",
@@ -139,8 +143,8 @@
         "password-reset-expired-or-invalid": "The password reset link is invalid or has expired.",
         "duplicate": "This place is already in the database and/or is waiting for approval by an administrator!",
         "limit": "You have reached the daily limit of adding new places!",
-        "fillout": "Please fill out all fields according to the instructions!",
+        "fillout": "Please fill out the opening times corrcetly!",
         "invalidtime": "The opening time should not be the same or later than the closing time!",
-        "timeformat": "Invalid time format. Please use the HH:MM format!"
+        "selectplace": "Please select a place on the map and fill out / correct the address fields!"
     }
 }

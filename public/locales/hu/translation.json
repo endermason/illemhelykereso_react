@@ -18,18 +18,19 @@
     "login": {
         "login": "Bejelentkezés",
         "or": "vagy",
-        "forgot": "Elfelejtetted a jelszavad?",
+        "forgot": "Elfelejtette a jelszavát?",
         "google": "Folytatás a Google-lal",
-        "reset": "<1>Itt</1> visszaállíthatod."
+        "reset": "<1>Itt</1> visszaállíthatja."
     },
     "reset":{
         "reset": "Elfelejtett jelszó",
-        "email": "Kérlek add meg az e-mail címed, amellyel regisztráltál. Az e-mail címre elküldjük a jelszóvisszaállítási linket.",
+        "newpassword": "Új jelszó beállítása",
+        "email": "Kérjük adja meg az e-mail címét, amellyel regisztrált. Az e-mail címre elküldjük a jelszóvisszaállítási linket.",
         "sendemail": "Jelszó visszaállítása",
         "emailsent": "A jelszóvisszaállítási e-mailt elküldtük a megadott címre.",
-        "text": "Add meg a {{email}} címhez tartozó fiók új jelszavát.",
+        "text": "Kérjük adja meg a(z) <1>{{email}}</1> e-mail címhez tartozó fiók új jelszavát.",
         "conditions": "A jelszónak 8-20 karakter hosszúnak kell lennie, és tartalmaznia kell legalább egy kisbetűt, egy nagybetűt, egy számot és egy speciális karaktert.",
-        "success": "A jelszóvisszaállítás sikeres volt. Most már bejelentkezhetsz az új jelszavaddal."
+        "success": "A jelszóvisszaállítás sikeres volt. Most már bejelentkezhet az új jelszavával."
     },
     "alert": {
         "openswithin30": "30 percen belül nyit",
@@ -78,6 +79,7 @@
         },
         "add": {
             "addplace": "Illemhely hozzáadása",
+            "addedplace": "A megadott llemhely adminisztrátori elfogadásra elküldve. Köszönjük a hozzájárulását!",
             "address": "Cím",
             "addresspaceholder": "pl. Egyetem tér 1, Győr",
             "detailedentry": "Hely részletes megadása",
@@ -94,7 +96,6 @@
             "adjustmarker": "Jelölő áthelyezése",
             "mapfooter": "Állítsa be a jelölőt a térképen, ha nem pontosan egyezik a helyszínnel. Ez segít javítani az cím adatait.",
             "price": "Ár",
-            "pricepaceholder": "pl. 200 (Ft)",
             "comments": "Megjegyzés",
             "commentspaceholder": "pl. A 3. emeleten, a lépcsőnél balra",
             "accessible": "Akadálymentes",
@@ -122,6 +123,9 @@
     "rating": "Értékelés",
     "review-text": "Értékelés szövege",
     "show-reviews": "Értékelések megtekintése",
+    "show": "Jelszó megjelenítése",
+    "hide": "Jelszó elrejtése",
+    "localcurrency": "Használati díj helyi pénznemben",
     "error":{
         "usernotfound": "Nincs ilyen felhasználó!",
         "wrongpassword": "Hibás e-mail cím vagy jelszó!",
@@ -139,8 +143,8 @@
         "password-reset-expired-or-invalid":"A jelszóvisszaállítási link érvénytelen vagy lejárt.",
         "duplicate": "Ez a hely már létezik és/vagy adminisztrátori elfogadásra vár!",
         "limit": "Elérte a helyek hozzáadásának napi limitjét!",
-        "fillout": "Kérjük, töltse ki már normálisan az összes mezőt!",
+        "fillout": "Kérjük, töltse ki helyesen a nyitvatartási időket!",
         "invalidtime": "A nyitás ideje nem lehet azonos vagy később, mint a zárás ideje!",
-        "timeformat": "Érvénytelen időformátum. Kérjük, használjon 24 órás (ÓÓ:PP) formátumot!" 
+        "selectplace": "Kérjük, válasszon ki egy helyet a térképen és töltse ki / ellenőrizze a hely adatait!"
     }
 }
