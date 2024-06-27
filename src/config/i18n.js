@@ -8,15 +8,15 @@ i18n
     .use(HttpApi)
     .use(LanguageDetector)
     .init({
-        supportedLngs: ["en", "de", "hu"],
+        supportedLngs: ["en", "de", "hu"],  
         interpolation: {
-            escapeValue: false,
+            escapeValue: false, // not needed for react as it escapes by default
         },
         nonExplicitSupportedLngs: true, //Allows "en-US" and "en-UK" to be implcitly supported
-        load: "languageOnly",
-        fallbackLng: "en",
+        load: "languageOnly",   //Loads only the language part from the locale
+        fallbackLng: "en",  //Use English if a language is not available
         detection: {
-            order: ["querystring", "cookie", "localStorage", "sessionStorage", "navigator", "htmlTag"],
+            order: ["querystring", "cookie", "localStorage", "sessionStorage", "navigator", "htmlTag"], //Order of lookup
             lookupQuerystring: "lang",
             lookupCookie: "i18next",
             lookupLocalStorage: "i18nextLng",

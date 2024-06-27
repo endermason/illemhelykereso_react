@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Col, ToggleButton } from 'react-bootstrap';
+import { ToggleButton } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 const Filters = ({ setFilterFunction }) => {

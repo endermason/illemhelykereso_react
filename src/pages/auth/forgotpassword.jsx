@@ -34,7 +34,6 @@ function ForgotPassword() {
         sendPasswordResetEmail(auth, email).then(() => {
             setSuccess(t('reset.emailsent')); //"Jelszó-visszaállító e-mail elküldve.
         }).catch((err) => {
-            // Add Hungarian error handling
             if (email === "") {
                 setError(t('error.emptyemail')); //"Az e-mail cím nem lehet üres."
             }

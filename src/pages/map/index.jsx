@@ -31,8 +31,8 @@ export const Map = () => {
     const getRoute = async (end) => {
         const query = await fetch(
             // régi `https://api.mapbox.com/directions/v5/mapbox/walking/17.638832149211858,47.679272511881216;${end[0]},${end[1]}?steps=true&walkway_bias=1&overview=full&language=hu&geometries=geojson&access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`,
-            //`https://api.mapbox.com/directions/v5/mapbox/walking/${me.longitude},${me.latitude};${end[0]},${end[1]}?steps=true&walkway_bias=1&overview=full&language=hu&geometries=geojson&access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`,
-             `https://api.mapbox.com/directions/v5/mapbox/walking/17.632454725489566,47.6863019222125;${end[0]},${end[1]}?steps=true&walkway_bias=1&overview=full&language=hu&geometries=geojson&access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`,
+            `https://api.mapbox.com/directions/v5/mapbox/walking/${me.longitude},${me.latitude};${end[0]},${end[1]}?steps=true&walkway_bias=1&overview=full&language=hu&geometries=geojson&access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`,
+            //`https://api.mapbox.com/directions/v5/mapbox/walking/17.632454725489566,47.6863019222125;${end[0]},${end[1]}?steps=true&walkway_bias=1&overview=full&language=hu&geometries=geojson&access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`,
             { method: 'GET' }
         );
         const json = await query.json();
@@ -159,7 +159,7 @@ export const Map = () => {
                         geoControlRef.current?.trigger();
                     }}
                     style={{ height: "100%" }}
-                    mapStyle="mapbox://styles/mapbox/streets-v11"
+                    mapStyle="mapbox://styles/mapbox/streets-v12"
                     className="map-container"
                 >
                     {routeJson && <Source id="route" type="geojson" data={routeJson}>

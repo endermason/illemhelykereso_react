@@ -51,7 +51,7 @@ const Layout = () => {
       {isLoading ? <Loading loading background="#ffffff" loaderColor="#3498db" /> :
         <AuthContext.Provider value={{ currentUser, logOut }}>
           {location.pathname === "/" ? <Outlet /> : <>
-          {error && <Alert variant="danger" className="error-message" dismissible>{t(error)}</Alert>}
+          {error && <Alert variant="danger" dismissible>{t(error)}</Alert>}
             <Navigationbar />
             <Outlet />
           </>}

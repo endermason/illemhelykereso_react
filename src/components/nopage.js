@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { useTranslation, Trans } from "react-i18next";
-import { Link, Navigate } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 
 const NoPage = () => {

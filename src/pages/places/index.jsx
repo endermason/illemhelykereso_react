@@ -342,11 +342,11 @@ export function Places() {
         }
 
         const newPageNumbers = [];
-        for (let i = 1; i <= Math.ceil(newSortedPlaces.length / 10); i++) { //2 place / oldal
+        for (let i = 1; i <= Math.ceil(newSortedPlaces.length / 10); i++) { //10 place / oldal
             newPageNumbers.push(i);
         }
 
-        setActualPlaces(newSortedPlaces.slice(0, 10)); //2 place / oldal
+        setActualPlaces(newSortedPlaces.slice(0, 10)); //10 place / oldal
         setCurrentPage(1);
         setPageNumbers(newPageNumbers);
         setSortedPlaces(newSortedPlaces);
@@ -708,6 +708,7 @@ export function Places() {
                                     {day}
                                 </Col>
                                 <Col xs={6} lg={4} className="mb-3">
+                                {index === 0 && t('places.add.from')}
                                     <Form.Group controlId={`interval-from-${index}`}>
                                         <Form.Control
                                             type="time"
@@ -719,10 +720,11 @@ export function Places() {
                                                 setNewPlaceOpenHours(newOpenHours);
                                             }}
 
-                                        />
+                                        /> 
                                     </Form.Group>
                                 </Col>
                                 <Col xs={6} lg={4} className="mb-3">
+                                {index === 0 && t('places.add.to')}
                                     <Form.Group controlId={`interval-to-${index}`}>
                                         <Form.Control
                                             type="time"

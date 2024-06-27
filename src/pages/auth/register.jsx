@@ -26,32 +26,21 @@ export const Signup = () => {
     }, [error]);
 
     const validatePassword = (password) => {
-        // Check the length
         if (password.length < 8 || password.length > 20) {
-            return 'error.characters' //"A jelszónak 8-20 karakter hosszúnak kell lennie."; 
+            return 'error.characters'   //"A jelszónak 8-20 karakter hosszúnak kell lennie."; 
         }
-
-        // Check for lowercase letter
         if (!/[a-z]/.test(password)) {
-            return 'error.lowercase' //"A jelszónak tartalmaznia kell legalább egy kisbetűt.";
+            return 'error.lowercase'    //"A jelszónak tartalmaznia kell legalább egy kisbetűt.";
         }
-
-        // Check for uppercase letter
         if (!/[A-Z]/.test(password)) {
-            return 'error.uppercase' //"A jelszónak tartalmaznia kell legalább egy nagybetűt.";
+            return 'error.uppercase'    //"A jelszónak tartalmaznia kell legalább egy nagybetűt.";
         }
-
-        // Check for number
         if (!/[0-9]/.test(password)) {
-            return 'error.number' //"A jelszónak tartalmaznia kell legalább egy számot.";
+            return 'error.number'       //"A jelszónak tartalmaznia kell legalább egy számot.";
         }
-
-        // Check for special character
         if (!/[!?.,€@#$%^&*\-]/.test(password)) {
-            return 'error.special' //"A jelszónak tartalmaznia kell legalább egy speciális karaktert.";
+            return 'error.special'      //"A jelszónak tartalmaznia kell legalább egy speciális karaktert.";
         }
-
-        // If all conditions are met
         return null;
     };
 
@@ -73,7 +62,6 @@ export const Signup = () => {
             navigate("/"); //Sikeres regisztráció esetén a főoldalra irányít át.
         } catch (err) {
             console.error(err);
-            // Error handling
             if (err.code === 'auth/email-already-in-use') {
                 setError('error.alreadyinuse'); //Ez az e-mail cím már használatban van.
             } else if (err.code === 'auth/invalid-email') {

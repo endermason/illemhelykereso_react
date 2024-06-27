@@ -1,5 +1,5 @@
 import { auth, googleProvider } from '../../config/firebase';
-import { signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../contexts/logoutcontext';
