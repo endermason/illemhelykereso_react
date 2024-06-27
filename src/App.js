@@ -1,5 +1,5 @@
 import './App.css';
-import { React, useEffect } from 'react';
+import { React } from 'react';
 import { Auth } from "./pages/auth/index";
 import { Signup } from './pages/auth/register';
 import { Map } from "./pages/map";
